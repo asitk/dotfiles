@@ -21,6 +21,7 @@ fi
 echo "✅ Installing prerequisites ..."
 brew install \
     stow \
+    fastfetch \
     multitail \
     tree \
     zoxide \
