@@ -120,6 +120,7 @@ alias ebrc='vi ~/.bashrc'
 alias da='date "+%Y-%m-%d %A %T %Z"'
 
 # Alias's to modified commands
+alias c='clear'
 alias cp='cp -i'
 alias mv='mv -i'
 alias rm='trash -v'
@@ -602,3 +603,4 @@ export PATH="$PATH:/.local/share/flatpak/exports/bin"
 
 eval "$(starship init bash)"
 eval "$(zoxide init --cmd cd bash)"
+alias zi='cdi'

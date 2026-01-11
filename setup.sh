@@ -33,6 +33,7 @@ brew install --quiet \
 	bat \
 	nvim \
 	tmux \
+	tpm \
 	starship || {
 	echo "❌ Failed to install prerequisites"
 	exit 1
@@ -69,19 +70,19 @@ fi
 DOTFILES_DIR="$HOME/dotfiles"
 
 # Navigate to the dotfiles directory
-cd "$DOTFILES_DIR" || { 
-		echo "❌ $HOME/dotfiles not found"
-		exit 1
-	}
+cd "$DOTFILES_DIR" || {
+	echo "❌ $HOME/dotfiles not found"
+	exit 1
+}
 
 # Loop through all directories and stow them
 for dir in */; do
-    # Remove trailing slash for the package name
-    package=$(basename "$dir")
-    
-    echo "Restoring $package..."
-    # -R (restow) is useful if you are updating existing links
-    stow -R "$package"
+	# Remove trailing slash for the package name
+	package=$(basename "$dir")
+
+	echo "Restoring $package..."
+	# -R (restow) is useful if you are updating existing links
+	stow -R "$package"
 done
 
 echo "All dotfiles have been restored!"
