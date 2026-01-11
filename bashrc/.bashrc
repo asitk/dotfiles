@@ -25,6 +25,9 @@ if [ -d ~/.bashrc.d ]; then
 fi
 unset rc
 
+# Run ssh-agent
+eval "$(ssh-agent -s)"
+
 # Add bash completion2 for bash >= 4.2
 if [[ -r "$(brew --prefix)/etc/profile.d/bash_completion.sh" ]]; then
 	source "$(brew --prefix)/etc/profile.d/bash_completion.sh"
