@@ -2,12 +2,12 @@
 
 # Source global definitions
 if [ -f /etc/bashrc ]; then
-    . /etc/bashrc
+	. /etc/bashrc
 fi
 
 # User specific environment
 if ! [[ "$PATH" =~ "$HOME/.local/bin:$HOME/bin:" ]]; then
-    PATH="$HOME/.local/bin:$HOME/bin:$PATH"
+	PATH="$HOME/.local/bin:$HOME/bin:$PATH"
 fi
 export PATH
 
@@ -17,22 +17,22 @@ export PATH
 
 # User specific aliases and functions
 if [ -d ~/.bashrc.d ]; then
-    for rc in ~/.bashrc.d/*; do
-        if [ -f "$rc" ]; then
-            . "$rc"
-        fi
-    done
+	for rc in ~/.bashrc.d/*; do
+		if [ -f "$rc" ]; then
+			. "$rc"
+		fi
+	done
 fi
 unset rc
 
 # Add bash completion2 for bash >= 4.2
 if [[ -r "$(brew --prefix)/etc/profile.d/bash_completion.sh" ]]; then
-  source "$(brew --prefix)/etc/profile.d/bash_completion.sh"
+	source "$(brew --prefix)/etc/profile.d/bash_completion.sh"
 fi
 
 # Invoke bash completion for bash < 4.2
 if [ -f $(brew --prefix)/etc/bash_completion ]; then
-  . $(brew --prefix)/etc/bash_completion
+	. $(brew --prefix)/etc/bash_completion
 fi
 
 # Disable the bell
@@ -83,13 +83,13 @@ export CLICOLOR=1
 export LS_COLORS='no=00:fi=00:di=00;34:ln=01;36:pi=40;33:so=01;35:*.tar=01;31:*.tgz=01;31:*.arj=01;31:*.taz=01;31:*.lzh=01;31:*.zip=01;31:*.z=01;31:*.Z=01;31:*.gz=01;31:*.bz2=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.jpg=01;35:*.jpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.avi=01;35:*.fli=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.ogg=01;35:*.mp3=01;35:*.wav=01;35:*.xml=00;31:'
 
 # Check if ripgrep is installed
-if command -v rg &> /dev/null; then
-    # Alias grep to rg if ripgrep is installed
-    alias grep='rg'
+if command -v rg &>/dev/null; then
+	# Alias grep to rg if ripgrep is installed
+	alias grep='rg'
 else
-    # Alias grep to /usr/bin/grep with GREP_OPTIONS if ripgrep is not \
-    # installed
-    alias grep="/usr/bin/grep $GREP_OPTIONS"
+	# Alias grep to /usr/bin/grep with GREP_OPTIONS if ripgrep is not \
+	# installed
+	alias grep="/usr/bin/grep $GREP_OPTIONS"
 fi
 unset GREP_OPTIONS
 
@@ -268,9 +268,9 @@ ftext() {
 
 # Copy file with a progress bar
 cpp() {
-    set -e
-    strace -q -ewrite cp -- "${1}" "${2}" 2>&1 |
-    awk '{
+	set -e
+	strace -q -ewrite cp -- "${1}" "${2}" 2>&1 |
+		awk '{
         count += $NF
         if (count % 10 == 0) {
             percent = count / total_size * 100
@@ -325,8 +325,7 @@ up() {
 }
 
 # Automatically do an ls after each cd, z, or zoxide
-cd ()
-{
+cd() {
 	if [ -n "$1" ]; then
 		builtin cd "$@" && ls
 	else
@@ -340,105 +339,105 @@ pwdtail() {
 }
 
 # Show the current distribution
-distribution () {
-    local dtype="unknown"  # Default to unknown
+distribution() {
+	local dtype="unknown" # Default to unknown
 
-    # Use /etc/os-release for modern distro identification
-    if [ -r /etc/os-release ]; then
-        source /etc/os-release
-        case $ID in
-            fedora|rhel|centos)
-                dtype="redhat"
-                ;;
-            sles|opensuse*)
-                dtype="suse"
-                ;;
-            ubuntu|debian)
-                dtype="debian"
-                ;;
-            gentoo)
-                dtype="gentoo"
-                ;;
-            arch|manjaro)
-                dtype="arch"
-                ;;
-            slackware)
-                dtype="slackware"
-                ;;
-            *)
-                # Check ID_LIKE only if dtype is still unknown
-                if [ -n "$ID_LIKE" ]; then
-                    case $ID_LIKE in
-                        *fedora*|*rhel*|*centos*)
-                            dtype="redhat"
-                            ;;
-                        *sles*|*opensuse*)
-                            dtype="suse"
-                            ;;
-                        *ubuntu*|*debian*)
-                            dtype="debian"
-                            ;;
-                        *gentoo*)
-                            dtype="gentoo"
-                            ;;
-                        *arch*)
-                            dtype="arch"
-                            ;;
-                        *slackware*)
-                            dtype="slackware"
-                            ;;
-                    esac
-                fi
+	# Use /etc/os-release for modern distro identification
+	if [ -r /etc/os-release ]; then
+		source /etc/os-release
+		case $ID in
+		fedora | rhel | centos)
+			dtype="redhat"
+			;;
+		sles | opensuse*)
+			dtype="suse"
+			;;
+		ubuntu | debian)
+			dtype="debian"
+			;;
+		gentoo)
+			dtype="gentoo"
+			;;
+		arch | manjaro)
+			dtype="arch"
+			;;
+		slackware)
+			dtype="slackware"
+			;;
+		*)
+			# Check ID_LIKE only if dtype is still unknown
+			if [ -n "$ID_LIKE" ]; then
+				case $ID_LIKE in
+				*fedora* | *rhel* | *centos*)
+					dtype="redhat"
+					;;
+				*sles* | *opensuse*)
+					dtype="suse"
+					;;
+				*ubuntu* | *debian*)
+					dtype="debian"
+					;;
+				*gentoo*)
+					dtype="gentoo"
+					;;
+				*arch*)
+					dtype="arch"
+					;;
+				*slackware*)
+					dtype="slackware"
+					;;
+				esac
+			fi
 
-                # If ID or ID_LIKE is not recognized, keep dtype as \
-                # unknown
-                ;;
-        esac
-    fi
+			# If ID or ID_LIKE is not recognized, keep dtype as \
+			# unknown
+			;;
+		esac
+	fi
 
-    echo $dtype
+	echo $dtype
 }
 
 DISTRIBUTION=$(distribution)
 
 # Show the current version of the operating system
 ver() {
-    local dtype
-    dtype=$(distribution)
+	local dtype
+	dtype=$(distribution)
 
-    case $dtype in
-        "redhat")
-            if [ -s /etc/redhat-release ]; then
-                cat /etc/redhat-release
-            else
-                cat /etc/issue
-            fi
-            uname -a
-            ;;
-        "suse")
-            cat /etc/SuSE-release
-            ;;
-        "debian")
-            lsb_release -a
-            ;;
-        "gentoo")
-            cat /etc/gentoo-release
-            ;;
-        "arch")
-            cat /etc/os-release
-            ;;
-        "slackware")
-            cat /etc/slackware-version
-            ;;
-        *)
-            if [ -s /etc/issue ]; then
-                cat /etc/issue
-            else
-                echo "Error: Unknown distribution"
-                exit 1
-            fi
-            ;;
-    esac
+	case $dtype in
+	"redhat")
+		if [ -s /etc/redhat-release ]; then
+			cat /etc/redhat-release
+		else
+			cat /etc/issue
+		fi
+		uname -a
+		;;
+	"suse")
+		cat /etc/SuSE-release
+		;;
+	"debian")
+		lsb_release -a
+		;;
+	"gentoo")
+		cat /etc/gentoo-release
+		;;
+	"arch")
+		cat /etc/os-release
+		;;
+	"slackware")
+		cat /etc/slackware-version
+		;;
+	*)
+		if [ -s /etc/issue ]; then
+			cat /etc/issue
+		else
+			echo "Error: Unknown distribution"
+			exit 1
+		fi
+		;;
+	esac
 }
 
 # Automatically install the needed support files for this .bashrc file
@@ -447,63 +446,63 @@ install_bashrc_support() {
 	dtype=$(distribution)
 
 	case $dtype in
-		"redhat")
-			sudo yum install multitail tree zoxide trash-cli fzf \
-				bash-completion fastfetch
-			;;
-		"suse")
-			sudo zypper install multitail tree zoxide trash-cli fzf \
-				bash-completion fastfetch
-			;;
-		"debian")
-			sudo apt-get install multitail tree zoxide trash-cli fzf bash-completion
-			# Fetch the latest fastfetch release URL for linux-amd64 deb file
-			FASTFETCH_URL=$(curl -s https://api.github.com/repos/fastfetch-cli/fastfetch/releases/latest | \
-grep "browser_download_url.*linux-amd64.deb" | cut -d '"' -f 4)
+	"redhat")
+		sudo yum install multitail tree zoxide trash-cli fzf \
+			bash-completion fastfetch
+		;;
+	"suse")
+		sudo zypper install multitail tree zoxide trash-cli fzf \
+			bash-completion fastfetch
+		;;
+	"debian")
+		sudo apt-get install multitail tree zoxide trash-cli fzf bash-completion
+		# Fetch the latest fastfetch release URL for linux-amd64 deb file
+		FASTFETCH_URL=$(curl -s https://api.github.com/repos/fastfetch-cli/fastfetch/releases/latest |
+			grep "browser_download_url.*linux-amd64.deb" | cut -d '"' -f 4)
 
-			# Download the latest fastfetch deb file
-			curl -sL $FASTFETCH_URL -o /tmp/fastfetch_latest_amd64.deb
+		# Download the latest fastfetch deb file
+		curl -sL $FASTFETCH_URL -o /tmp/fastfetch_latest_amd64.deb
 
-			# Install the downloaded deb file using apt-get
-			sudo apt-get install /tmp/fastfetch_latest_amd64.deb
-			;;
-		"arch")
-			sudo paru multitail tree zoxide trash-cli fzf bash-completion fastfetch
-			;;
-		"slackware")
-			echo "No install support for Slackware"
-			;;
-		*)
-			echo "Unknown distribution"
-			;;
+		# Install the downloaded deb file using apt-get
+		sudo apt-get install /tmp/fastfetch_latest_amd64.deb
+		;;
+	"arch")
+		sudo paru multitail tree zoxide trash-cli fzf bash-completion fastfetch
+		;;
+	"slackware")
+		echo "No install support for Slackware"
+		;;
+	*)
+		echo "Unknown distribution"
+		;;
 	esac
 }
 
 # IP address lookup
 alias whatismyip="whatsmyip"
-function whatsmyip () {
-    # Internal IP Lookup.
-    if command -v ip &> /dev/null; then
-        echo -n "Internal IP: "
-        ip addr show wlan0 | grep "inet " | awk '{print $2}' | \
-            cut -d/ -f1
-    else
-        echo -n "Internal IP: "
-        ifconfig wlan0 | grep "inet " | awk '{print $2}'
-    fi
+function whatsmyip() {
+	# Internal IP Lookup.
+	if command -v ip &>/dev/null; then
+		echo -n "Internal IP: "
+		ip addr show wlan0 | grep "inet " | awk '{print $2}' |
+			cut -d/ -f1
+	else
+		echo -n "Internal IP: "
+		ifconfig wlan0 | grep "inet " | awk '{print $2}'
+	fi
 
-    # External IP Lookup
-    echo -n "External IP: "
-    curl -4 ifconfig.me
+	# External IP Lookup
+	echo -n "External IP: "
+	curl -4 ifconfig.me
 }
 
 # View Apache logs
 apachelog() {
 	if [ -f /etc/httpd/conf/httpd.conf ]; then
-		cd /var/log/httpd && ls -xAh && \
+		cd /var/log/httpd && ls -xAh &&
 			multitail --no-repeat -c -s 2 /var/log/httpd/*_log
 	else
-		cd /var/log/apache2 && ls -xAh && \
+		cd /var/log/apache2 && ls -xAh &&
 			multitail --no-repeat -c -s 2 /var/log/apache2/*.log
 	fi
 }
@@ -561,14 +560,13 @@ mysqlconfig() {
 	fi
 }
 
-
 # Trim leading and trailing spaces (for scripts)
 trim() {
 	local var=$*
-	var="${var#"${var%%[![:space:]]*}"}" # remove leading whitespace \
-		characters
-	var="${var%"${var##*[![:space:]]}"}" # remove trailing whitespace \
-		characters
+	var="${var#"${var%%[![:space:]]*}"}" \
+		characters # remove leading whitespace \
+	var="${var%"${var##*[![:space:]]}"}" \
+		characters # remove trailing whitespace \
 	echo -n "$var"
 }
 # GitHub Titus Additions
@@ -585,8 +583,8 @@ lazyg() {
 
 # Check if the shell is interactive
 if [[ $- == *i* ]]; then
-    # Bind Ctrl+f to insert 'zi' followed by a newline
-    bind '"\C-f":"zi\n"'
+	# Bind Ctrl+f to insert 'zi' followed by a newline
+	bind '"\C-f":"zi\n"'
 fi
 
 export PATH="$PATH:$HOME/.local/bin"
