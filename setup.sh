@@ -19,12 +19,12 @@ fi
 
 # Install prerequisites
 echo "✅ Installing prerequisites ..."
-brew install \
+brew install --quiet \
 	stow \
 	fastfetch \
 	git-delta \
-	sh-fmt \
-	tldr \
+	shfmt \
+	tealdeer \
 	multitail \
 	tree \
 	zoxide \
@@ -40,7 +40,7 @@ brew install \
 
 # Install fonts
 echo "✅ Installing fonts ..."
-brew install \
+brew install --quiet \
 	font-meslo-lg-nerd-font \
 	font-fira-code-nerd-font \
 	font-jetbrains-mono-nerd-font || {
@@ -54,17 +54,39 @@ version=$(bash --version | head -n1 | cut -d' ' -f4 |
 	cut -d'(' -f1)
 if [[ $(printf '%s\n' "$version" "4.2" | sort -V |
 	head -n1) == "4.2" ]]; then
-	brew install bash-completion@2 || {
+	brew install --quiet bash-completion@2 || {
 		echo "❌ Failed to install bash-completion@2"
 		exit 1
 	}
 else
-	brew install bash-completion || {
+	brew install --quiet bash-completion || {
 		echo "❌ Failed to install bash-completion"
 		exit 1
 	}
 fi
 
+# Restore dotfiles
+DOTFILES_DIR="$HOME/dotfiles"
+
+# Navigate to the dotfiles directory
+cd "$DOTFILES_DIR" || { 
+		echo "❌ $HOME/dotfiles not found"
+		exit 1
+	}
+
+# Loop through all directories and stow them
+for dir in */; do
+    # Remove trailing slash for the package name
+    package=$(basename "$dir")
+    
+    echo "Restoring $package..."
+    # -R (restow) is useful if you are updating existing links
+    stow -R "$package"
+done
+
+echo "All dotfiles have been restored!"
+
+# Activate
 source ~/dotfiles/bashrc/.bashrc
 
 echo "✅ Setup complete!"

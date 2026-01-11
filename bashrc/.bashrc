@@ -82,6 +82,7 @@ export EDITOR=nvim
 export VISUAL=nvim
 alias vim='nvim'
 alias vi='nvim'
+alias e='nvim'
 
 # To have colors for ls and all grep commands such as grep, egrep and \
 # zgrep
