@@ -1,14 +1,17 @@
 [core]
-    pager = delta
+    	pager = delta
+
+[include]
+	path = ~/.config/git/themes.gitconfig
 
 [interactive]
-    diffFilter = delta --color-only
+    	diffFilter = delta --color-only
 
 [delta]
-    navigate = true    # Use 'n' and 'N' to jump between files
-    line-numbers = true
-    side-by-side = true
-
+	features = mantis-shrimp-lite
+	navigate = true    # Use 'n' and 'N' to jump between files
+    	line-numbers = true
+    	side-by-side = true
 [merge]
-    conflictStyle = zdiff3
+    	conflictStyle = zdiff3
 
