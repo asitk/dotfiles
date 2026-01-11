@@ -24,6 +24,7 @@ brew install \
 	fastfetch \
 	git-delta \
 	sh-fmt \
+	tldr \
 	multitail \
 	tree \
 	zoxide \

@@ -25,8 +25,10 @@ if [ -d ~/.bashrc.d ]; then
 fi
 unset rc
 
-# Run ssh-agent
-eval "$(ssh-agent -s)"
+# Run ssh-agent if not already running
+if ! pgrep -u "$USER" ssh-agent >/dev/null; then
+	eval "$(ssh-agent -s)"
+fi
 
 # Add bash completion2 for bash >= 4.2
 if [[ -r "$(brew --prefix)/etc/profile.d/bash_completion.sh" ]]; then
@@ -50,12 +52,12 @@ export HISTTIMEFORMAT="%F %T" # add timestamp to history
 # start with a space
 export HISTCONTROL=erasedups:ignoredups:ignorespace
 
-# Check the window size after each command and, if necessary, update the \
-# values of LINES and COLUMNS
+# Check the window size after each command and, if necessary, update \
+# the values of LINES and COLUMNS
 shopt -s checkwinsize
 
-# Causes bash to append to history instead of overwriting it so if you start \
-# a new terminal, you have old session history
+# Causes bash to append to history instead of overwriting it so if you \
+# start a new terminal, you have old session history
 shopt -s histappend
 PROMPT_COMMAND='history -a'
 
@@ -79,6 +81,7 @@ if [[ $iatest -gt 0 ]]; then bind "set show-all-if-ambiguous On"; fi
 export EDITOR=nvim
 export VISUAL=nvim
 alias vim='nvim'
+alias vi='nvim'
 
 # To have colors for ls and all grep commands such as grep, egrep and \
 # zgrep
@@ -90,8 +93,8 @@ if command -v rg &>/dev/null; then
 	# Alias grep to rg if ripgrep is installed
 	alias grep='rg'
 else
-	# Alias grep to /usr/bin/grep with GREP_OPTIONS if ripgrep is not \
-	# installed
+	# Alias grep to /usr/bin/grep with GREP_OPTIONS if ripgrep is \
+	# not installed
 	alias grep="/usr/bin/grep $GREP_OPTIONS"
 fi
 unset GREP_OPTIONS
@@ -111,7 +114,7 @@ alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo
 "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
 
 # Edit this .bashrc file
-alias ebrc='edit ~/.bashrc'
+alias ebrc='vi ~/.bashrc'
 # alias to show the date
 alias da='date "+%Y-%m-%d %A %T %Z"'
 
@@ -127,7 +130,6 @@ alias cls='clear'
 alias apt-get='sudo apt-get'
 alias multitail='multitail --no-repeat -c'
 alias freshclam='sudo freshclam'
-alias vi='nvim'
 alias svi='sudo vi'
 alias vis='nvim "+set si"'
 alias yayf="yay -Slq | fzf --multi --preview 'yay -Sii {1}' --preview-window=down:75% | \
@@ -176,6 +178,7 @@ alias h="history | grep "
 # Search running processes
 alias p="ps aux | grep "
 alias topcpu="/bin/ps -eo pcpu,pid,user,args | sort -k 1 -r | head -10"
+
 # Search files in the current folder
 alias f="find . | grep "
 
@@ -513,9 +516,9 @@ apachelog() {
 # Edit the Apache configuration
 apacheconfig() {
 	if [ -f /etc/httpd/conf/httpd.conf ]; then
-		sedit /etc/httpd/conf/httpd.conf
+		vi /etc/httpd/conf/httpd.conf
 	elif [ -f /etc/apache2/apache2.conf ]; then
-		sedit /etc/apache2/apache2.conf
+		vi /etc/apache2/apache2.conf
 	else
 		echo "Error: Apache config file could not be found."
 		echo "Searching for possible locations:"
@@ -526,15 +529,15 @@ apacheconfig() {
 # Edit the PHP configuration file
 phpconfig() {
 	if [ -f /etc/php.ini ]; then
-		sedit /etc/php.ini
+		vi /etc/php.ini
 	elif [ -f /etc/php/php.ini ]; then
-		sedit /etc/php/php.ini
+		vi /etc/php/php.ini
 	elif [ -f /etc/php5/php.ini ]; then
-		sedit /etc/php5/php.ini
+		vi /etc/php5/php.ini
 	elif [ -f /usr/bin/php5/bin/php.ini ]; then
-		sedit /usr/bin/php5/bin/php.ini
+		vi /usr/bin/php5/bin/php.ini
 	elif [ -f /etc/php5/apache2/php.ini ]; then
-		sedit /etc/php5/apache2/php.ini
+		vi /etc/php5/apache2/php.ini
 	else
 		echo "Error: php.ini file could not be found."
 		echo "Searching for possible locations:"
@@ -545,17 +548,17 @@ phpconfig() {
 # Edit the MySQL configuration file
 mysqlconfig() {
 	if [ -f /etc/my.cnf ]; then
-		sedit /etc/my.cnf
+		vi /etc/my.cnf
 	elif [ -f /etc/mysql/my.cnf ]; then
-		sedit /etc/mysql/my.cnf
+		vi /etc/mysql/my.cnf
 	elif [ -f /usr/local/etc/my.cnf ]; then
-		sedit /usr/local/etc/my.cnf
+		vi /usr/local/etc/my.cnf
 	elif [ -f /usr/bin/mysql/my.cnf ]; then
-		sedit /usr/bin/mysql/my.cnf
+		vi /usr/bin/mysql/my.cnf
 	elif [ -f ~/my.cnf ]; then
-		sedit ~/my.cnf
+		vi ~/my.cnf
 	elif [ -f ~/.my.cnf ]; then
-		sedit ~/.my.cnf
+		vi ~/.my.cnf
 	else
 		echo "Error: my.cnf file could not be found."
 		echo "Searching for possible locations:"
@@ -567,13 +570,14 @@ mysqlconfig() {
 trim() {
 	local var=$*
 	var="${var#"${var%%[![:space:]]*}"}" \
-		characters # remove leading whitespace \
-	var="${var%"${var##*[![:space:]]}"}" \
-		characters # remove trailing whitespace \
-	echo -n "$var"
+		characters \
+		var="${var%"${var##*[![:space:]]}"}" \
+		characters \
+		echo -n "$var" # remove leading whitespace \
+	# remove trailing whitespace \
 }
-# GitHub Titus Additions
 
+# GitHub Additions
 gcom() {
 	git add .
 	git commit -m "$1"
@@ -596,4 +600,4 @@ export PATH="$PATH:/var/lib/flatpak/exports/bin"
 export PATH="$PATH:/.local/share/flatpak/exports/bin"
 
 eval "$(starship init bash)"
-eval "$(zoxide init bash)"
+eval "$(zoxide init --cmd cd bash)"
