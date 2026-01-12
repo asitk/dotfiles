@@ -115,7 +115,9 @@ alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo
 "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
 
 # Edit this .bashrc file
-alias ebrc='vi ~/.bashrc'
+alias ebrc='nvim ~/.bashrc'
+alias sbrc='source ~/.bashrc'
+
 # alias to show the date
 alias da='date "+%Y-%m-%d %A %T %Z"'
 
@@ -147,24 +149,28 @@ alias ...='cd ../..'
 alias ....='cd ../../..'
 alias .....='cd ../../../..'
 
+
 # Alias's for multiple directory listing commands
-alias la='ls -Alh'                # show hidden files
-alias ls='ls -aFh --color=always' # add colors and file type extensions
-alias lx='ls -lXBh'               # sort by extension
-alias lk='ls -lSrh'               # sort by size
-alias lc='ls -ltcrh'              # sort by change time
-alias lu='ls -lturh'              # sort by access time
-alias lr='ls -lRh'                # recursive ls
-alias lt='ls -ltrh'               # sort by date
-alias lm='ls -alh |more'          # pipe through 'more'
-alias lw='ls -xAh'                # wide listing format
-alias ll='ls -Fls'                # long listing format
-alias labc='ls -lap'              # alphabetical sort
-alias lf="ls -l | egrep -v '^d'"  # files only
-alias ldir="ls -l | egrep '^d'"   # directories only
-alias lla='ls -Al'                # List and Hidden Files
-alias las='ls -A'                 # Hidden Files
-alias lls='ls -l'                 # List
+alias lx='eza -lhXB'                  # sort by extension
+alias lk='eza -lhrs size'             # sort by size
+alias lc='eza -lhrs changed'  	      # sort by change time (recently changed first)
+alias lu='eza -lhrs accessed'         # sort by access time (latest update first)
+alias lo='eza -lhs modified'	      # sort by oldest first
+alias ln='eza -lhrs modified'	      # sort by newest first
+alias lr='eza -lhR'                   # recursive ls
+alias lt='eza -lhtr'                  # sort by date
+alias lm='eza -lha | less'            # pipe through 'less'
+alias lw='eza -xAh'                   # wide listing format
+alias labc='eza -lhs name'            # alphabetical sort
+alias lf='eza -lhf'            	      # files only
+alias ld='eza -D'  		      # directories only
+alias lla='eza -Alh'                  # List and Hidden Files
+alias lls='eza -lh'                   # List
+
+alias la='eza -Ah --color=always --group-directories-first --icons'
+alias ls='eza --color=always --group-directories-first --icons'
+alias ll='eza -la --header --icons --git --group-directories-first'
+alias lt='eza --tree --level=2 --icons'
 
 # alias chmod commands
 alias mx='chmod a+x'
@@ -603,4 +609,14 @@ export PATH="$PATH:/.local/share/flatpak/exports/bin"
 
 eval "$(starship init bash)"
 eval "$(zoxide init --cmd cd bash)"
+eval "$(fzf --bash)"
+
+# fzf opts
+export FZF_CTRL_R_OPTS="
+  --preview 'echo {}' --preview-window down:3:hidden:wrap
+  --bind 'ctrl-/:toggle-preview'
+  --bind 'ctrl-y:execute-silent(echo -n {2..} | pbcopy)+abort'
+  --color 'header:italic:underline'
+  --header 'Press CTRL-Y to copy command, CTRL-/ to toggle preview'"
+
 alias zi='cdi'

@@ -22,7 +22,11 @@ echo "✅ Installing prerequisites ..."
 brew install --quiet \
 	stow \
 	fastfetch \
+	git \
+	lazygit \
 	git-delta \
+	eza \
+	ripgrep \
 	shfmt \
 	tealdeer \
 	multitail \
@@ -30,10 +34,12 @@ brew install --quiet \
 	zoxide \
 	trash-cli \
 	fzf \
+	fd \
 	bat \
 	nvim \
 	tmux \
 	tpm \
+	xclip \
 	starship || {
 	echo "❌ Failed to install prerequisites"
 	exit 1
