@@ -151,23 +151,22 @@ alias ...='cd ../..'
 alias ....='cd ../../..'
 alias .....='cd ../../../..'
 
-
 # Alias's for multiple directory listing commands
-alias lx='eza -lhXB'                  # sort by extension
-alias lk='eza -lhrs size'             # sort by size
-alias lc='eza -lhrs changed'  	      # sort by change time (recently changed first)
-alias lu='eza -lhrs accessed'         # sort by access time (latest update first)
-alias lo='eza -lhs modified'	      # sort by oldest first
-alias ln='eza -lhrs modified'	      # sort by newest first
-alias lr='eza -lhR'                   # recursive ls
-alias lt='eza -lhtr'                  # sort by date
-alias lm='eza -lha | less'            # pipe through 'less'
-alias lw='eza -xAh'                   # wide listing format
-alias labc='eza -lhs name'            # alphabetical sort
-alias lf='eza -lhf'            	      # files only
-alias ld='eza -D'  		      # directories only
-alias lla='eza -Alh'                  # List and Hidden Files
-alias lls='eza -lh'                   # List
+alias lx='eza -lhXB'          # sort by extension
+alias lk='eza -lhrs size'     # sort by size
+alias lc='eza -lhrs changed'  # sort by change time (recently changed first)
+alias lu='eza -lhrs accessed' # sort by access time (latest update first)
+alias lo='eza -lhs modified'  # sort by oldest first
+alias ln='eza -lhrs modified' # sort by newest first
+alias lr='eza -lhR'           # recursive ls
+alias lt='eza -lhtr'          # sort by date
+alias lm='eza -lha | less'    # pipe through 'less'
+alias lw='eza -xAh'           # wide listing format
+alias labc='eza -lhs name'    # alphabetical sort
+alias lf='eza -lhf'           # files only
+alias ld='eza -D'             # directories only
+alias lla='eza -Alh'          # List and Hidden Files
+alias lls='eza -lh'           # List
 
 alias la='eza -Ah --color=always --group-directories-first --icons'
 alias ls='eza --color=always --group-directories-first --icons'
@@ -282,26 +281,6 @@ ftext() {
 	grep -iIHrn --color=always "$1" . | less -r
 }
 
-# Copy file with a progress bar
-cpp() {
-	set -e
-	strace -q -ewrite cp -- "${1}" "${2}" 2>&1 |
-		awk '{
-        count += $NF
-        if (count % 10 == 0) {
-            percent = count / total_size * 100
-            printf "%3d%% [", percent
-            for (i=0;i<=percent;i++)
-                printf "="
-            printf ">"
-            for (i=percent;i<100;i++)
-                printf " "
-            printf "]\r"
-        }
-    }
-    END { print "" }' total_size="$(stat -c '%s' "${1}")" count=0
-}
-
 # Copy and go to the directory
 cpg() {
 	if [ -d "$2" ]; then
@@ -354,144 +333,80 @@ pwdtail() {
 	pwd | awk -F/ '{nlast = NF -1;print $nlast"/"$NF}'
 }
 
-# Show the current distribution
-distribution() {
-	local dtype="unknown" # Default to unknown
-
-	# Use /etc/os-release for modern distro identification
-	if [ -r /etc/os-release ]; then
-		source /etc/os-release
-		case $ID in
-		fedora | rhel | centos)
-			dtype="redhat"
-			;;
-		sles | opensuse*)
-			dtype="suse"
-			;;
-		ubuntu | debian)
-			dtype="debian"
-			;;
-		gentoo)
-			dtype="gentoo"
-			;;
-		arch | manjaro)
-			dtype="arch"
-			;;
-		slackware)
-			dtype="slackware"
-			;;
-		*)
-			# Check ID_LIKE only if dtype is still unknown
-			if [ -n "$ID_LIKE" ]; then
-				case $ID_LIKE in
-				*fedora* | *rhel* | *centos*)
-					dtype="redhat"
-					;;
-				*sles* | *opensuse*)
-					dtype="suse"
-					;;
-				*ubuntu* | *debian*)
-					dtype="debian"
-					;;
-				*gentoo*)
-					dtype="gentoo"
-					;;
-				*arch*)
-					dtype="arch"
-					;;
-				*slackware*)
-					dtype="slackware"
-					;;
-				esac
-			fi
-
-			# If ID or ID_LIKE is not recognized, keep dtype as \
-			# unknown
-			;;
-		esac
-	fi
-
-	echo $dtype
-}
-
-DISTRIBUTION=$(distribution)
-
-# Show the current version of the operating system
-ver() {
-	local dtype
-	dtype=$(distribution)
-
-	case $dtype in
-	"redhat")
-		if [ -s /etc/redhat-release ]; then
-			cat /etc/redhat-release
-		else
-			cat /etc/issue
-		fi
-		uname -a
-		;;
-	"suse")
-		cat /etc/SuSE-release
-		;;
-	"debian")
-		lsb_release -a
-		;;
-	"gentoo")
-		cat /etc/gentoo-release
-		;;
-	"arch")
-		cat /etc/os-release
-		;;
-	"slackware")
-		cat /etc/slackware-version
-		;;
-	*)
-		if [ -s /etc/issue ]; then
-			cat /etc/issue
-		else
-			echo "Error: Unknown distribution"
-			exit 1
-		fi
-		;;
-	esac
-}
-
 # Automatically install the needed support files for this .bashrc file
 install_bashrc_support() {
-	local dtype
-	dtype=$(distribution)
 
-	case $dtype in
-	"redhat")
-		sudo yum install multitail tree zoxide trash-cli fzf \
-			bash-completion fastfetch
-		;;
-	"suse")
-		sudo zypper install multitail tree zoxide trash-cli fzf \
-			bash-completion fastfetch
-		;;
-	"debian")
-		sudo apt-get install multitail tree zoxide trash-cli fzf bash-completion
-		# Fetch the latest fastfetch release URL for linux-amd64 deb file
-		FASTFETCH_URL=$(curl -s https://api.github.com/repos/fastfetch-cli/fastfetch/releases/latest |
-			grep "browser_download_url.*linux-amd64.deb" | cut -d '"' -f 4)
+	# Check if OS is Linux or macOS
+	if [[ "$OSTYPE" != "linux-gnu"* && "$OSTYPE" != "darwin"* ]]; then
+		echo "❌ OS is unsupported. Exiting"
+		exit 1
+	fi
 
-		# Download the latest fastfetch deb file
-		curl -sL $FASTFETCH_URL -o /tmp/fastfetch_latest_amd64.deb
+	# Check if Homebrew is installed
+	if ! command -v brew &>/dev/null; then
+		echo "✅ Installing Homebrew ..."
+		/bin/bash -c "$(curl -fsSL \
+			https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" || {
+			echo "❌ Failed to install Homebrew"
+			exit 1
+		}
+	fi
 
-		# Install the downloaded deb file using apt-get
-		sudo apt-get install /tmp/fastfetch_latest_amd64.deb
-		;;
-	"arch")
-		sudo paru multitail tree zoxide trash-cli fzf bash-completion fastfetch
-		;;
-	"slackware")
-		echo "No install support for Slackware"
-		;;
-	*)
-		echo "Unknown distribution"
-		;;
-	esac
+	# Install prerequisites
+	echo "✅ Installing prerequisites ..."
+	brew install --quiet \
+		stow \
+		fastfetch \
+		shellcheck \
+		git \
+		lazygit \
+		git-delta \
+		eza \
+		ripgrep \
+		shfmt \
+		tealdeer \
+		multitail \
+		tree \
+		zoxide \
+		trash-cli \
+		fzf \
+		fd \
+		bat \
+		nvim \
+		tmux \
+		tpm \
+		xclip \
+		starship || {
+		echo "❌ Failed to install prerequisites"
+		exit 1
+	}
+
+	# Install fonts
+	echo "✅ Installing fonts ..."
+	brew install --quiet \
+		font-meslo-lg-nerd-font \
+		font-fira-code-nerd-font \
+		font-jetbrains-mono-nerd-font || {
+		echo "❌ Failed to install fonts"
+		exit 1
+	}
+
+	# Install bash completion
+	echo "✅ Installing bash completion ..."
+	version=$(bash --version | head -n1 | cut -d' ' -f4 |
+		cut -d'(' -f1)
+	if [[ $(printf '%s\n' "$version" "4.2" | sort -V |
+		head -n1) == "4.2" ]]; then
+		brew install --quiet bash-completion@2 || {
+			echo "❌ Failed to install bash-completion@2"
+			exit 1
+		}
+	else
+		brew install --quiet bash-completion || {
+			echo "❌ Failed to install bash-completion"
+			exit 1
+		}
+	fi
 }
 
 # IP address lookup
@@ -574,17 +489,6 @@ mysqlconfig() {
 		echo "Searching for possible locations:"
 		sudo updatedb && locate my.cnf
 	fi
-}
-
-# Trim leading and trailing spaces (for scripts)
-trim() {
-	local var=$*
-	var="${var#"${var%%[![:space:]]*}"}" \
-		characters \
-		var="${var%"${var##*[![:space:]]}"}" \
-		characters \
-		echo -n "$var" # remove leading whitespace \
-	# remove trailing whitespace \
 }
 
 # GitHub Additions
