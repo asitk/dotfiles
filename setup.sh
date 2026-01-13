@@ -22,6 +22,7 @@ echo "✅ Installing prerequisites ..."
 brew install --quiet \
 	stow \
 	fastfetch \
+	shellcheck \
 	git \
 	lazygit \
 	git-delta \

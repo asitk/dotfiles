@@ -1,4 +1,4 @@
-# .bashrc
+#!/bin/bash
 
 # Source global definitions
 if [ -f /etc/bashrc ]; then
@@ -6,7 +6,7 @@ if [ -f /etc/bashrc ]; then
 fi
 
 # User specific environment
-if ! [[ "$PATH" =~ "$HOME/.local/bin:$HOME/bin:" ]]; then
+if ! [[ "$PATH" =~ $HOME/.local/bin:$HOME/bin: ]]; then
 	PATH="$HOME/.local/bin:$HOME/bin:$PATH"
 fi
 export PATH
@@ -36,8 +36,8 @@ if [[ -r "$(brew --prefix)/etc/profile.d/bash_completion.sh" ]]; then
 fi
 
 # Invoke bash completion for bash < 4.2
-if [ -f $(brew --prefix)/etc/bash_completion ]; then
-	. $(brew --prefix)/etc/bash_completion
+if [ -f "$(brew --prefix)/etc/bash_completion.sh" ]; then
+	. "$(brew --prefix)/etc/bash_completion.sh"
 fi
 
 # Disable the bell
