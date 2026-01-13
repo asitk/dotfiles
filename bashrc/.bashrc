@@ -115,8 +115,10 @@ alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo
 "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
 
 # Edit this .bashrc file
-alias ebrc='nvim ~/.bashrc'
-alias sbrc='source ~/.bashrc'
+alias ebsh='nvim ~/.bashrc'
+alias sbsh='source ~/.bashrc'
+alias etmx='nvim ~/.config/tmux/tmux.conf'
+alias envm='nvim ~/.config/nvim/init.lua'
 
 # alias to show the date
 alias da='date "+%Y-%m-%d %A %T %Z"'
