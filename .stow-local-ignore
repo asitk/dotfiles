@@ -19,5 +19,6 @@ _darcs
 \#.*\#       # emacs autosave files
 
 ^/README.*
+^/lazy-lock.json
 ^/LICENSE.*
 ^/COPYING

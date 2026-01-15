@@ -355,15 +355,8 @@ install_bashrc_support() {
 	# Install prerequisites
 	echo "✅ Installing prerequisites ..."
 	brew install --quiet \
-		stow \
-		fastfetch \
-		shellcheck \
-		git \
-		lazygit \
-		git-delta \
 		eza \
 		ripgrep \
-		shfmt \
 		tealdeer \
 		multitail \
 		tree \
@@ -372,10 +365,6 @@ install_bashrc_support() {
 		fzf \
 		fd \
 		bat \
-		nvim \
-		tmux \
-		tpm \
-		xclip \
 		starship || {
 		echo "❌ Failed to install prerequisites"
 		exit 1
@@ -385,7 +374,6 @@ install_bashrc_support() {
 	echo "✅ Installing fonts ..."
 	brew install --quiet \
 		font-meslo-lg-nerd-font \
-		font-fira-code-nerd-font \
 		font-jetbrains-mono-nerd-font || {
 		echo "❌ Failed to install fonts"
 		exit 1
@@ -512,6 +500,7 @@ export PATH="$PATH:$HOME/.local/bin"
 export PATH="$PATH:$HOME/.cargo/bin"
 export PATH="$PATH:/var/lib/flatpak/exports/bin"
 export PATH="$PATH:/.local/share/flatpak/exports/bin"
+export PATH="$PATH:/home/linuxbrew/.linuxbrew/opt/coreutils/libexec/gnubin"
 
 eval "$(starship init bash)"
 eval "$(zoxide init --cmd cd bash)"
