@@ -30,6 +30,203 @@ if ! pgrep -u "$USER" ssh-agent >/dev/null; then
 	eval "$(ssh-agent -s)"
 fi
 
+#######################################################
+# BOOTSTRAP DEPENDENCIES AND TOOLS
+#######################################################
+
+# Function to detect the current Linux distro and macOS version
+detect_os() {
+	os=$(uname -s)
+	if [ "$os" = "Darwin" ]; then
+		version=$(sw_vers -productVersion 2>/dev/null || echo "Unknown")
+		echo "macOS $version"
+	elif [ "$os" = "Linux" ]; then
+		if [ -f /etc/os-release ]; then
+			. /etc/os-release
+			echo "$ID_LIKE"
+		else
+			echo "Unknown Linux distro"
+		fi
+	else
+		echo "Unsupported OS: $os"
+	fi
+}
+
+# Function to install Homebrew
+install_brew() {
+	/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" 2>/dev/null
+	eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+}
+
+# Message function
+status() {
+	local tool=$1
+	if [ "$?" -eq 0 ]; then
+		echo -e "\033[32m✓\033[0m $tool installed successfully"
+	else
+		echo -e "\033[31m✗\033[0m Failed to install $tool"
+	fi
+}
+
+# Function to install dependencies
+install_dependencies() {
+	distro=$(detect_os)
+	case $distro in
+	macOS*)
+		# macOS: just install git, assuming brew is pre-installed
+		if ! command -v git &>/dev/null; then
+			echo "Installing Git on $distro..."
+			brew install git 2>/dev/null
+			status git
+		fi
+		;;
+	debian)
+		if ! command -v git &>/dev/null; then
+			echo "Installing Git on $distro..."
+			sudo apt update 2>/dev/null && sudo apt install -y git 2>/dev/null
+			status git
+		fi
+		if ! command -v brew &>/dev/null; then
+			echo "Installing Homebrew on $distro..."
+			install_brew
+			status brew
+		fi
+		;;
+	fedora)
+		if ! command -v git &>/dev/null; then
+			echo "Installing Git on $distro..."
+			sudo dnf install -y git 2>/dev/null
+			status git
+		fi
+		if ! command -v brew &>/dev/null; then
+			echo "Installing Homebrew on $distro..."
+			install_brew
+			status brew
+		fi
+		;;
+	rhel)
+		if ! command -v git &>/dev/null; then
+			echo "Installing Git on $distro..."
+			sudo dnf install -y git 2>/dev/null
+			status git
+		fi
+		if ! command -v brew &>/dev/null; then
+			echo "Installing Homebrew on $distro..."
+			install_brew
+			status brew
+		fi
+		;;
+	"")
+		# Check ID for distros with empty ID_LIKE
+		. /etc/os-release
+		case $ID in
+		arch)
+			if ! command -v git &>/dev/null; then
+				echo "Installing Git on $distro..."
+				sudo pacman -S --noconfirm git 2>/dev/null
+				status git
+			fi
+			if ! command -v brew &>/dev/null; then
+				echo "Installing Homebrew on $distro..."
+				install_brew
+				status brew
+			fi
+			;;
+		opensuse*)
+			if ! command -v git &>/dev/null; then
+				echo "Installing Git on $distro..."
+				sudo zypper install -y git 2>/dev/null
+				status git
+			fi
+			if ! command -v brew &>/dev/null; then
+				echo "Installing Homebrew on $distro..."
+				install_brew
+				status brew
+			fi
+			;;
+		*)
+			echo -e "\033[31m✗\033[0m Unsupported distro"
+			;;
+		esac
+		;;
+	*)
+		echo -e "\033[31m✗\033[0m Unsupported distro"
+		;;
+	esac
+}
+
+# Automatically install the needed support files for this .bashrc file
+install_tools() {
+	# Install prerequisites (only missing tools)
+	# echo -e "\033[32m✓\033[0m Checking/installing prerequisites ..."
+	tools=("nvim" "eza" "ripgrep" "tealdeer" "multitail" "tree" "zoxide" "trash-cli" "fzf" "fd" "bat" "starship")
+	missing_tools=()
+	for tool in "${tools[@]}"; do
+		if ! brew list "$tool" >/dev/null 2>&1; then
+			missing_tools+=("$tool")
+		fi
+	done
+	if [ ${#missing_tools[@]} -gt 0 ]; then
+		brew install --quiet "${missing_tools[@]}" || {
+			echo -e "\033[31m✗\033[0m Failed to install prerequisites ${missing_tools[*]}"
+			bsuccess=false
+		}
+	fi
+
+	# Install fonts (only missing fonts)
+	echo -e "\033[32m✓\033[0m Checking/installing fonts ..."
+	fonts=("font-meslo-lg-nerd-font" "font-jetbrains-mono-nerd-font")
+	missing_fonts=()
+	for font in "${fonts[@]}"; do
+		if ! brew list --cask "$font" >/dev/null 2>&1; then
+			missing_fonts+=("$font")
+		fi
+	done
+	if [ ${#missing_fonts[@]} -gt 0 ]; then
+		brew install --quiet "${missing_fonts[@]}" || {
+			echo -e "\033[31m✗\033[0m Failed to install fonts: ${missing_fonts[*]}"
+			bsuccess=false
+		}
+	fi
+
+	# Install bash completion (only if missing)
+	# echo -e "\033[32m✓\033[0m Checking/installing bash completion ..."
+	version=$(bash --version | head -n1 | cut -d' ' -f4 | cut -d'(' -f1)
+	if [[ $(printf '%s\n' "$version" "4.2" | sort -V | head -n1) == "4.2" ]]; then
+		completion_pkg="bash-completion@2"
+	else
+		completion_pkg="bash-completion"
+	fi
+	if ! brew list "$completion_pkg" >/dev/null 2>&1; then
+		brew install --quiet "$completion_pkg" || {
+			echo -e "\033[31m✗\033[0m Failed to install $completion_pkg"
+			bsuccess=false
+		}
+	fi
+}
+
+#if [ -f /run/.containerenv ] || [ -f /.dockerenv ]; then
+#    # This code only runs INSIDE a container
+#    export PS1="(distrobox) $PS1"
+#    alias brew='distrobox-host-exec brew'
+#		eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+#else
+	install_dependencies
+
+	LOCK_FILE="/tmp/bashrc.lock"
+
+	if [ ! -f "$LOCK_FILE" ]; then
+		bsuccess=true
+		install_tools
+	fi
+
+	# Create lock file only on success
+	if [ "$bsuccess" = true ]; then
+		touch "$LOCK_FILE"
+		# echo "Lock file created at $LOCK_FILE. Future runs will skip installation."
+	fi
+#fi
+
 # Add bash completion2 for bash >= 4.2
 if [[ -r "$(brew --prefix)/etc/profile.d/bash_completion.sh" ]]; then
 	source "$(brew --prefix)/etc/profile.d/bash_completion.sh"
@@ -42,6 +239,10 @@ fi
 
 # Disable the bell
 if [[ $iatest -gt 0 ]]; then bind "set bell-style visible"; fi
+
+#######################################################
+# EXPORTS
+#######################################################
 
 # Expand the history size
 export HISTFILESIZE=10000
@@ -108,6 +309,10 @@ export LESS_TERMCAP_se=$'\E[0m'
 export LESS_TERMCAP_so=$'\E[01;44;33m'
 export LESS_TERMCAP_ue=$'\E[0m'
 export LESS_TERMCAP_us=$'\E[01;32m'
+
+#######################################################
+# ALIASES
+#######################################################
 
 # Add an "alert" alias for long running commands.  Use like so:
 #   sleep 10; alert
@@ -243,6 +448,7 @@ alias docker-clean=' \
 #######################################################
 # SPECIAL FUNCTIONS
 #######################################################
+
 # Extracts any archive(s) (if unp isn't installed)
 extract() {
 	for archive in "$@"; do
@@ -331,70 +537,6 @@ cd() {
 # Returns the last 2 fields of the working directory
 pwdtail() {
 	pwd | awk -F/ '{nlast = NF -1;print $nlast"/"$NF}'
-}
-
-# Automatically install the needed support files for this .bashrc file
-install_bashrc_support() {
-
-	# Check if OS is Linux or macOS
-	if [[ "$OSTYPE" != "linux-gnu"* && "$OSTYPE" != "darwin"* ]]; then
-		echo "❌ OS is unsupported. Exiting"
-		exit 1
-	fi
-
-	# Check if Homebrew is installed
-	if ! command -v brew &>/dev/null; then
-		echo "✅ Installing Homebrew ..."
-		/bin/bash -c "$(curl -fsSL \
-			https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" || {
-			echo "❌ Failed to install Homebrew"
-			exit 1
-		}
-	fi
-
-	# Install prerequisites
-	echo "✅ Installing prerequisites ..."
-	brew install --quiet \
-		eza \
-		ripgrep \
-		tealdeer \
-		multitail \
-		tree \
-		zoxide \
-		trash-cli \
-		fzf \
-		fd \
-		bat \
-		starship || {
-		echo "❌ Failed to install prerequisites"
-		exit 1
-	}
-
-	# Install fonts
-	echo "✅ Installing fonts ..."
-	brew install --quiet \
-		font-meslo-lg-nerd-font \
-		font-jetbrains-mono-nerd-font || {
-		echo "❌ Failed to install fonts"
-		exit 1
-	}
-
-	# Install bash completion
-	echo "✅ Installing bash completion ..."
-	version=$(bash --version | head -n1 | cut -d' ' -f4 |
-		cut -d'(' -f1)
-	if [[ $(printf '%s\n' "$version" "4.2" | sort -V |
-		head -n1) == "4.2" ]]; then
-		brew install --quiet bash-completion@2 || {
-			echo "❌ Failed to install bash-completion@2"
-			exit 1
-		}
-	else
-		brew install --quiet bash-completion || {
-			echo "❌ Failed to install bash-completion"
-			exit 1
-		}
-	fi
 }
 
 # IP address lookup
@@ -501,6 +643,10 @@ export PATH="$PATH:$HOME/.cargo/bin"
 export PATH="$PATH:/var/lib/flatpak/exports/bin"
 export PATH="$PATH:/.local/share/flatpak/exports/bin"
 export PATH="$PATH:/home/linuxbrew/.linuxbrew/opt/coreutils/libexec/gnubin"
+
+#######################################################
+# STARSHIP, CD REPLACEMENT AND FUZZY SEARCH
+#######################################################
 
 eval "$(starship init bash)"
 eval "$(zoxide init --cmd cd bash)"
