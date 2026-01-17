@@ -30,203 +30,6 @@ if ! pgrep -u "$USER" ssh-agent >/dev/null; then
 	eval "$(ssh-agent -s)"
 fi
 
-#######################################################
-# BOOTSTRAP DEPENDENCIES AND TOOLS
-#######################################################
-
-# Function to detect the current Linux distro and macOS version
-detect_os() {
-	os=$(uname -s)
-	if [ "$os" = "Darwin" ]; then
-		version=$(sw_vers -productVersion 2>/dev/null || echo "Unknown")
-		echo "macOS $version"
-	elif [ "$os" = "Linux" ]; then
-		if [ -f /etc/os-release ]; then
-			. /etc/os-release
-			echo "$ID_LIKE"
-		else
-			echo "Unknown Linux distro"
-		fi
-	else
-		echo "Unsupported OS: $os"
-	fi
-}
-
-# Function to install Homebrew
-install_brew() {
-	/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" 2>/dev/null
-	eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-}
-
-# Message function
-status() {
-	local tool=$1
-	if [ "$?" -eq 0 ]; then
-		echo -e "\033[32m✓\033[0m $tool installed successfully"
-	else
-		echo -e "\033[31m✗\033[0m Failed to install $tool"
-	fi
-}
-
-# Function to install dependencies
-install_dependencies() {
-	distro=$(detect_os)
-	case $distro in
-	macOS*)
-		# macOS: just install git, assuming brew is pre-installed
-		if ! command -v git &>/dev/null; then
-			echo "Installing Git on $distro..."
-			brew install git 2>/dev/null
-			status git
-		fi
-		;;
-	debian)
-		if ! command -v git &>/dev/null; then
-			echo "Installing Git on $distro..."
-			sudo apt update 2>/dev/null && sudo apt install -y git 2>/dev/null
-			status git
-		fi
-		if ! command -v brew &>/dev/null; then
-			echo "Installing Homebrew on $distro..."
-			install_brew
-			status brew
-		fi
-		;;
-	fedora)
-		if ! command -v git &>/dev/null; then
-			echo "Installing Git on $distro..."
-			sudo dnf install -y git 2>/dev/null
-			status git
-		fi
-		if ! command -v brew &>/dev/null; then
-			echo "Installing Homebrew on $distro..."
-			install_brew
-			status brew
-		fi
-		;;
-	rhel)
-		if ! command -v git &>/dev/null; then
-			echo "Installing Git on $distro..."
-			sudo dnf install -y git 2>/dev/null
-			status git
-		fi
-		if ! command -v brew &>/dev/null; then
-			echo "Installing Homebrew on $distro..."
-			install_brew
-			status brew
-		fi
-		;;
-	"")
-		# Check ID for distros with empty ID_LIKE
-		. /etc/os-release
-		case $ID in
-		arch)
-			if ! command -v git &>/dev/null; then
-				echo "Installing Git on $distro..."
-				sudo pacman -S --noconfirm git 2>/dev/null
-				status git
-			fi
-			if ! command -v brew &>/dev/null; then
-				echo "Installing Homebrew on $distro..."
-				install_brew
-				status brew
-			fi
-			;;
-		opensuse*)
-			if ! command -v git &>/dev/null; then
-				echo "Installing Git on $distro..."
-				sudo zypper install -y git 2>/dev/null
-				status git
-			fi
-			if ! command -v brew &>/dev/null; then
-				echo "Installing Homebrew on $distro..."
-				install_brew
-				status brew
-			fi
-			;;
-		*)
-			echo -e "\033[31m✗\033[0m Unsupported distro"
-			;;
-		esac
-		;;
-	*)
-		echo -e "\033[31m✗\033[0m Unsupported distro"
-		;;
-	esac
-}
-
-# Automatically install the needed support files for this .bashrc file
-install_tools() {
-	# Install prerequisites (only missing tools)
-	# echo -e "\033[32m✓\033[0m Checking/installing prerequisites ..."
-	tools=("nvim" "eza" "ripgrep" "tealdeer" "multitail" "tree" "zoxide" "trash-cli" "fzf" "fd" "bat" "starship")
-	missing_tools=()
-	for tool in "${tools[@]}"; do
-		if ! brew list "$tool" >/dev/null 2>&1; then
-			missing_tools+=("$tool")
-		fi
-	done
-	if [ ${#missing_tools[@]} -gt 0 ]; then
-		brew install --quiet "${missing_tools[@]}" || {
-			echo -e "\033[31m✗\033[0m Failed to install prerequisites ${missing_tools[*]}"
-			bsuccess=false
-		}
-	fi
-
-	# Install fonts (only missing fonts)
-	echo -e "\033[32m✓\033[0m Checking/installing fonts ..."
-	fonts=("font-meslo-lg-nerd-font" "font-jetbrains-mono-nerd-font")
-	missing_fonts=()
-	for font in "${fonts[@]}"; do
-		if ! brew list --cask "$font" >/dev/null 2>&1; then
-			missing_fonts+=("$font")
-		fi
-	done
-	if [ ${#missing_fonts[@]} -gt 0 ]; then
-		brew install --quiet "${missing_fonts[@]}" || {
-			echo -e "\033[31m✗\033[0m Failed to install fonts: ${missing_fonts[*]}"
-			bsuccess=false
-		}
-	fi
-
-	# Install bash completion (only if missing)
-	# echo -e "\033[32m✓\033[0m Checking/installing bash completion ..."
-	version=$(bash --version | head -n1 | cut -d' ' -f4 | cut -d'(' -f1)
-	if [[ $(printf '%s\n' "$version" "4.2" | sort -V | head -n1) == "4.2" ]]; then
-		completion_pkg="bash-completion@2"
-	else
-		completion_pkg="bash-completion"
-	fi
-	if ! brew list "$completion_pkg" >/dev/null 2>&1; then
-		brew install --quiet "$completion_pkg" || {
-			echo -e "\033[31m✗\033[0m Failed to install $completion_pkg"
-			bsuccess=false
-		}
-	fi
-}
-
-#if [ -f /run/.containerenv ] || [ -f /.dockerenv ]; then
-#    # This code only runs INSIDE a container
-#    export PS1="(distrobox) $PS1"
-#    alias brew='distrobox-host-exec brew'
-#		eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-#else
-	install_dependencies
-
-	LOCK_FILE="/tmp/bashrc.lock"
-
-	if [ ! -f "$LOCK_FILE" ]; then
-		bsuccess=true
-		install_tools
-	fi
-
-	# Create lock file only on success
-	if [ "$bsuccess" = true ]; then
-		touch "$LOCK_FILE"
-		# echo "Lock file created at $LOCK_FILE. Future runs will skip installation."
-	fi
-#fi
-
 # Add bash completion2 for bash >= 4.2
 if [[ -r "$(brew --prefix)/etc/profile.d/bash_completion.sh" ]]; then
 	source "$(brew --prefix)/etc/profile.d/bash_completion.sh"
@@ -279,11 +82,13 @@ if [[ $iatest -gt 0 ]]; then bind "set completion-ignore-case on"; fi
 if [[ $iatest -gt 0 ]]; then bind "set show-all-if-ambiguous On"; fi
 
 # Set the default editor
-export EDITOR=nvim
-export VISUAL=nvim
-alias vim='nvim'
-alias vi='nvim'
-alias e='nvim'
+if command -v nvim >/dev/null 2>&1; then
+	export EDITOR=nvim
+	export VISUAL=nvim
+	alias vim='nvim'
+	alias vi='nvim'
+	alias e='nvim'
+fi
 
 # To have colors for ls and all grep commands such as grep, egrep and \
 # zgrep
@@ -320,10 +125,10 @@ alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo
 "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
 
 # Edit this .bashrc file
-alias ebsh='nvim ~/.bashrc'
+alias ebsh='vi ~/.bashrc'
 alias sbsh='source ~/.bashrc'
-alias etmx='nvim ~/.config/tmux/tmux.conf'
-alias envm='nvim ~/.config/nvim/init.lua'
+alias etmx='vi ~/.config/tmux/tmux.conf'
+alias envm='vi ~/.config/nvim/init.lua'
 
 # alias to show the date
 alias da='date "+%Y-%m-%d %A %T %Z"'
@@ -332,7 +137,11 @@ alias da='date "+%Y-%m-%d %A %T %Z"'
 alias c='clear'
 alias cp='cp -i'
 alias mv='mv -i'
-alias rm='trash -v'
+
+if command -v trash >/dev/null 2>&1; then
+	alias rm='trash -v'
+fi
+
 alias mkdir='mkdir -p'
 alias ps='ps auxf'
 alias ping='ping -c 10'
@@ -346,7 +155,9 @@ alias vis='nvim "+set si"'
 alias yayf="yay -Slq | fzf --multi --preview 'yay -Sii {1}' --preview-window=down:75% | \
 xargs -ro yay -S"
 
+if command -v bat >/dev/null 2>&1; then
 alias cat='bat'
+fi
 
 # Change directory aliases
 alias home='cd ~'
@@ -357,26 +168,28 @@ alias ....='cd ../../..'
 alias .....='cd ../../../..'
 
 # Alias's for multiple directory listing commands
-alias lx='eza -lhXB'          # sort by extension
-alias lk='eza -lhrs size'     # sort by size
-alias lc='eza -lhrs changed'  # sort by change time (recently changed first)
-alias lu='eza -lhrs accessed' # sort by access time (latest update first)
-alias lo='eza -lhs modified'  # sort by oldest first
-alias ln='eza -lhrs modified' # sort by newest first
-alias lr='eza -lhR'           # recursive ls
-alias lt='eza -lhtr'          # sort by date
-alias lm='eza -lha | less'    # pipe through 'less'
-alias lw='eza -xAh'           # wide listing format
-alias labc='eza -lhs name'    # alphabetical sort
-alias lf='eza -lhf'           # files only
-alias ld='eza -D'             # directories only
-alias lla='eza -Alh'          # List and Hidden Files
-alias lls='eza -lh'           # List
+if command -v eza >/dev/null 2>&1; then
+	alias lx='eza -lhXB'          # sort by extension
+	alias lk='eza -lhrs size'     # sort by size
+	alias lc='eza -lhrs changed'  # sort by change time (recently changed first)
+	alias lu='eza -lhrs accessed' # sort by access time (latest update first)
+	alias lo='eza -lhs modified'  # sort by oldest first
+	alias ln='eza -lhrs modified' # sort by newest first
+	alias lr='eza -lhR'           # recursive ls
+	alias lt='eza -lhtr'          # sort by date
+	alias lm='eza -lha | less'    # pipe through 'less'
+	alias lw='eza -xAh'           # wide listing format
+	alias labc='eza -lhs name'    # alphabetical sort
+	alias lf='eza -lhf'           # files only
+	alias ld='eza -D'             # directories only
+	alias lla='eza -Alh'          # List and Hidden Files
+	alias lls='eza -lh'           # List
 
-alias la='eza -Ah --color=always --group-directories-first --icons'
-alias ls='eza --color=always --group-directories-first --icons'
-alias ll='eza -la --header --icons --git --group-directories-first'
-alias lt='eza --tree --level=2 --icons'
+	alias la='eza -Ah --color=always --group-directories-first --icons'
+	alias ls='eza --color=always --group-directories-first --icons'
+	alias ll='eza -la --header --icons --git --group-directories-first'
+	alias lt='eza --tree --level=2 --icons'
+fi
 
 # alias chmod commands
 alias mx='chmod a+x'
@@ -434,16 +247,20 @@ sed -e's/:$//g' | grep -v '[0-9]$' | xargs tail -f"
 # SHA1
 alias sha1='openssl sha1'
 
-alias clickpaste='sleep 3; xdotool type "$(xclip -o -selection clipboard)"'
+if command -v xclip >/dev/null 2>&1; then
+	alias clickpaste='sleep 3; xdotool type "$(xclip -o -selection clipboard)"'
+fi
 
 # alias to cleanup unused docker containers, images, networks, and \
 # volumes
 
-alias docker-clean=' \
-  docker container prune -f ; \
-  docker image prune -f ; \
-  docker network prune -f ; \
-  docker volume prune -f '
+if command -v docker >/dev/null 2>&1; then
+	alias docker-clean=' \
+  	docker container prune -f ; \
+  	docker image prune -f ; \
+  	docker network prune -f ; \
+  	docker volume prune -f '
+fi
 
 #######################################################
 # SPECIAL FUNCTIONS
@@ -642,15 +459,27 @@ export PATH="$PATH:$HOME/.local/bin"
 export PATH="$PATH:$HOME/.cargo/bin"
 export PATH="$PATH:/var/lib/flatpak/exports/bin"
 export PATH="$PATH:/.local/share/flatpak/exports/bin"
-export PATH="$PATH:/home/linuxbrew/.linuxbrew/opt/coreutils/libexec/gnubin"
+
+if command -v brew >/dev/null 2>&1; then
+	eval "$(brew shellenv)" 
+	export PATH="$PATH:$(brew --prefix coreutils)/libexec/gnubin"
+	export PATH="$PATH:$(brew --prefix gnu-sed)/libexec/gnubin"
+	export PATH="$PATH:$(brew --prefix gnu-tar)/libexec/gnubin"
+fi
 
 #######################################################
 # STARSHIP, CD REPLACEMENT AND FUZZY SEARCH
 #######################################################
 
-eval "$(starship init bash)"
-eval "$(zoxide init --cmd cd bash)"
-eval "$(fzf --bash)"
+if command -v starship >/dev/null 2>&1; then
+	eval "$(starship init bash)"
+fi
+if command -v zoxide >/dev/null 2>&1; then
+	eval "$(zoxide init --cmd cd bash)"
+fi
+if command -v starship >/dev/null 2>&1; then
+	eval "$(fzf --bash)"
+fi
 
 # fzf opts
 export FZF_CTRL_R_OPTS="

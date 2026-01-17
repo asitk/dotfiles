@@ -19,7 +19,7 @@ fi
 
 # Install prerequisites
 echo -e "\033[32m✓\033[0m Installing prerequisites ..."
-brew install --quiet \
+brew reinstall \
 	stow fastfetch shellcheck git lazygit tree-sitter-cli lua luarocks \
 	git-delta eza ripgrep shfmt tealdeer multitail tree bottom zoxide \
 	trash-cli fzf fd curl bat nvim tmux tpm xclip gcc make cmake gh openjdk \
@@ -30,7 +30,7 @@ brew install --quiet \
 
 # Install fonts
 echo -e "\033[32m✓\033[0m Installing fonts ..."
-brew install --quiet \
+brew reinstall \
 	font-meslo-lg-nerd-font font-fira-code-nerd-font \
 	font-jetbrains-mono-nerd-font || {
 	echo -e "\033[31m✗\033[0m Failed to install fonts"
@@ -43,12 +43,12 @@ version=$(bash --version | head -n1 | cut -d' ' -f4 |
 	cut -d'(' -f1)
 if [[ $(printf '%s\n' "$version" "4.2" | sort -V |
 	head -n1) == "4.2" ]]; then
-	brew install --quiet bash-completion@2 || {
+	brew reinstall bash-completion@2 || {
 		echo -e "\033[31m✗\033[0m Failed to install bash-completion@2"
 		exit 1
 	}
 else
-	brew install --quiet bash-completion || {
+	brew reinstall bash-completion || {
 		echo -e "\033[31m✗\033[0m Failed to install bash-completion"
 		exit 1
 	}
@@ -79,6 +79,11 @@ if [ -d ~/.cache/nvim ]; then
 fi
 
 # Clone AstroVim starter
+
+if [ -d $HOME/dotfiles/nvim ]; then
+	rm -rf $HOME/dotfiles/nvim 
+fi
+
 git clone --depth 1 https://github.com/AstroNvim/template "$HOME/dotfiles/nvim/.config/nvim" || {
 	echo -e "\033[31m✗\033[0m Failed to clone AstroVim starter"
 	exit 1

@@ -21,6 +21,7 @@ detect_os() {
 # Function to install Homebrew
 install_brew() {
 	/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" 2>/dev/null
+	eval "$(brew shellenv)" # Add to bashrc
 }
 
 # Message function
