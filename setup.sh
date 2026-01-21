@@ -105,11 +105,18 @@ cd "$DOTFILES_DIR" || {
 }
 
 echo "Restoring dotfiles ..."
-stow -R "bashrc"
+tldr --update
+
+trash ~/.config/git
 stow -R "git"
+trash ~/.config/nvim
 stow -R "nvim"
+trash ~/.config/starship
 stow -R "starship"
+trash ~/.config/tmux
 stow -R "tmux"
+trash ~/.bashrc
+stow -R "bashrc"
 
 # Run headless install
 nvim --headless +q
