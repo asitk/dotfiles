@@ -6,9 +6,21 @@ if [ -f /etc/bashrc ]; then
 fi
 
 # User specific environment
-if ! [[ "$PATH" =~ $HOME/.local/bin:$HOME/bin: ]]; then
-	PATH="$HOME/.local/bin:$HOME/bin:$PATH"
+# Helper function for exact PATH matching
+path_exists() {
+	[[ ":$PATH:" == *":$1:"* ]]
+}
+
+# Add $HOME/.local/bin if not already in PATH (prepended)
+if ! path_exists "$HOME/.local/bin"; then
+	PATH="$HOME/.local/bin:$PATH"
 fi
+
+# Add $HOME/bin if not already in PATH (prepended)
+if ! path_exists "$HOME/bin"; then
+	PATH="$HOME/bin:$PATH"
+fi
+
 export PATH
 
 # Uncomment the following line if you don't like \
@@ -41,7 +53,7 @@ if [ -f "$(brew --prefix)/etc/bash_completion.sh" ]; then
 fi
 
 # Disable the bell
-if [[ $iatest -gt 0 ]]; then bind "set bell-style visible"; fi
+if [[ $- == *i* ]]; then bind "set bell-style visible"; fi
 
 #######################################################
 # EXPORTS
@@ -76,10 +88,10 @@ export XDG_CACHE_HOME="$HOME/.cache"
 
 # Ignore case on auto-completion
 # Note: bind used instead of sticking these in .inputrc
-if [[ $iatest -gt 0 ]]; then bind "set completion-ignore-case on"; fi
+if [[ $- == *i* ]]; then bind "set completion-ignore-case on"; fi
 
 # Show auto-completion list automatically, without double tab
-if [[ $iatest -gt 0 ]]; then bind "set show-all-if-ambiguous On"; fi
+if [[ $- == *i* ]]; then bind "set show-all-if-ambiguous On"; fi
 
 # Set the default editor
 if command -v nvim >/dev/null 2>&1; then
@@ -102,7 +114,7 @@ if command -v rg &>/dev/null; then
 else
 	# Alias grep to /usr/bin/grep with GREP_OPTIONS if ripgrep is \
 	# not installed
-	alias grep="/usr/bin/grep $GREP_OPTIONS"
+	alias grep="/usr/bin/grep \${GREP_OPTIONS}"
 fi
 unset GREP_OPTIONS
 
@@ -156,7 +168,7 @@ alias yayf="yay -Slq | fzf --multi --preview 'yay -Sii {1}' --preview-window=dow
 xargs -ro yay -S"
 
 if command -v bat >/dev/null 2>&1; then
-alias cat='bat'
+	alias cat='bat'
 fi
 
 # Change directory aliases
@@ -210,7 +222,8 @@ alias topcpu="/bin/ps -eo pcpu,pid,user,args | sort -k 1 -r | head -10"
 alias f="find . | grep "
 
 # Count all files (recursively) in the current folder
-alias countfiles="for t in files links directories; do echo \`find . -type \${t:0:1} | wc -l\` \$t; \
+# shellcheck disable=SC2154  # 'type' is a loop variable in this alias
+alias countfiles="for type in files links directories; do echo \`find . -type \${type:0:1} | wc -l\` \$type; \
 done 2> /dev/null"
 
 # To see if a command is aliased, a file, or a built-in command
@@ -307,7 +320,7 @@ ftext() {
 # Copy and go to the directory
 cpg() {
 	if [ -d "$2" ]; then
-		cp "$1" "$2" && cd "$2"
+		cp "$1" "$2" && cd "$2" || return 1
 	else
 		cp "$1" "$2"
 	fi
@@ -316,7 +329,7 @@ cpg() {
 # Move and go to the directory
 mvg() {
 	if [ -d "$2" ]; then
-		mv "$1" "$2" && cd "$2"
+		mv "$1" "$2" && cd "$2" || return 1
 	else
 		mv "$1" "$2"
 	fi
@@ -325,7 +338,7 @@ mvg() {
 # Create and go to the directory
 mkdirg() {
 	mkdir -p "$1"
-	cd "$1"
+	cd "$1" || return 1
 }
 
 # Goes up a specified number of directories  (i.e. up 4)
@@ -339,7 +352,7 @@ up() {
 	if [ -z "$d" ]; then
 		d=..
 	fi
-	cd $d
+	cd "$d" || return 1
 }
 
 # Automatically do an ls after each cd, z, or zoxide
@@ -455,17 +468,43 @@ if [[ $- == *i* ]]; then
 	bind '"\C-f":"zi\n"'
 fi
 
-export PATH="$PATH:$HOME/.local/bin"
-export PATH="$PATH:$HOME/.cargo/bin"
-export PATH="$PATH:/var/lib/flatpak/exports/bin"
-export PATH="$PATH:/.local/share/flatpak/exports/bin"
-
-if command -v brew >/dev/null 2>&1; then
-	eval "$(brew shellenv)" 
-	export PATH="$PATH:$(brew --prefix coreutils)/libexec/gnubin"
-	export PATH="$PATH:$(brew --prefix gnu-sed)/libexec/gnubin"
-	export PATH="$PATH:$(brew --prefix gnu-tar)/libexec/gnubin"
+# Add Cargo bin path if not already in PATH
+if ! path_exists "$HOME/.cargo/bin"; then
+	export PATH="$HOME/.cargo/bin:$PATH"
 fi
+
+# Add Flatpak export paths if not already in PATH
+if ! path_exists "/var/lib/flatpak/exports/bin"; then
+	export PATH="/var/lib/flatpak/exports/bin:$PATH"
+fi
+
+if ! path_exists "/.local/share/flatpak/exports/bin"; then
+	export PATH="/.local/share/flatpak/exports/bin:$PATH"
+fi
+
+# Brew configuration with safe PATH additions
+if command -v brew >/dev/null 2>&1; then
+	eval "$(brew shellenv)"
+
+	# Add brew gnubin paths only if not already in PATH
+	if ! path_exists "$(brew --prefix coreutils)/libexec/gnubin"; then
+		coreutils_path="$(brew --prefix coreutils)/libexec/gnubin"
+		export PATH="$coreutils_path:$PATH"
+	fi
+
+	if ! path_exists "$(brew --prefix gnu-sed)/libexec/gnubin"; then
+		gnu_sed_path="$(brew --prefix gnu-sed)/libexec/gnubin"
+		export PATH="$gnu_sed_path:$PATH"
+	fi
+
+	if ! path_exists "$(brew --prefix gnu-tar)/libexec/gnubin"; then
+		gnu_tar_path="$(brew --prefix gnu-tar)/libexec/gnubin"
+		export PATH="$gnu_tar_path:$PATH"
+	fi
+fi
+
+# Clean up helper function
+unset -f path_exists
 
 #######################################################
 # STARSHIP, CD REPLACEMENT AND FUZZY SEARCH

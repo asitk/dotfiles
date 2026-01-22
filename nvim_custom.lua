@@ -10,7 +10,7 @@ vim.opt.backupdir = vim.fn.expand("~/.local/state/nvim/backup//")
 vim.opt.backupext = ".bak"
 
 -- ================================================================================================
--- author: Radley E. Sidwell-lewis
+-- section credit : Radley E. Sidwell-lewis
 -- ================================================================================================
 
 -- theme & transparency
@@ -566,60 +566,9 @@ end
 
 setup_dynamic_statusline()
 
--- Make sure to setup `mapleader` and `maplocalleader` before
--- loading lazy.nvim so that mappings are correct.
--- This is also a good place to setup other settings (vim.opt)
--- Key mappings
-vim.g.mapleader = " "                   -- Set leader key to space
-vim.g.maplocalleader = "\\"             -- Set local leader key (NEW)
-require("config.lazy")
-
-
 -- ============================================================================
--- Lazy
+-- Keymappings
 -- ============================================================================
-
--- You dont need to set any of these options. These are the default ones. Only
--- the loading is important
--- require('telescope').setup {
---   extensions = {
---     fzf = {
---       fuzzy = true,                     -- false will only do exact matching
---       override_generic_sorter = true,   -- override the generic sorter
---       override_file_sorter = true,      -- override the file sorter
---       case_mode = "smart_case",         -- or "ignore_case" or "respect_case"
---                                         -- the default case_mode is "smart_case"
---     }
---   }
--- }
-
--- ============================================================================
--- Telescope
--- ============================================================================
-
--- To get fzf loaded and working with telescope, you need to call
--- load_extension, somewhere after setup function:
-require('telescope').load_extension('fzf')
-local builtin = require("telescope.builtin")
-vim.keymap.set('n', '<leader>ff', builtin.find_files, { desc = 'Find files' })
-vim.keymap.set('n', '<leader>fo', builtin.oldfiles, { desc = 'Recent files' })
-vim.keymap.set('n', '<leader>fg', builtin.live_grep, { desc = 'Grep' })
-vim.keymap.set('n', '<leader>fs', builtin.grep_string, { desc = 'Grep' })
-
--- ============================================================================
--- Treesitter
--- ============================================================================
-
---require'nvim-treesitter'.setup {
-  -- Directory to install parsers and queries to (prepended to `runtimepath` to have priority)
-  --install_dir = vim.fn.stdpath('data') .. '/site'
---}
-
-local ts = require("nvim-treesitter")
--- ts.install({ "c", "lua", "vim", "vimdoc", "query", "elixir", "heex", "javascript", "html" })
--- ts.install({ "go", "python", "cpp", "rust", "java", "tsx", "css", "vue", "php", "kotlin" })
--- ts.install({ "swift", "json", "yaml", "toml", "xml", "dockerfile", "nginx", "hcl", "bash" })
--- ts.install({ "fish", "zsh", "awk", "make", "perl", "erlang", "julia", "svelte" })
 
 vim.cmd.colorscheme("tokyonight-night")
 
