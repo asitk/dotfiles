@@ -1,6 +1,6 @@
-# Template
+# Cross Platform Dev Setup
 
-A comprehensive collection of configuration files for a productive development environment across Linux and macOS systems. - Asit
+A comprehensive collection of dotfiles for a productive development environment.
 
 ## 🚀 Quick Start
 
@@ -175,7 +175,9 @@ Add custom aliases and functions to `bashrc/.bashrc`
 
 ## 📄 License
 
-This project is open source. Feel free to use, modify, and distribute according to your needs.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+Feel free to use, modify, and distribute according to your needs.
 
 ## 🤝 Contributing
 
