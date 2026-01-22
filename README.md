@@ -1,6 +1,6 @@
-# Dotfiles
+# Template
 
-A comprehensive collection of configuration files for a productive development environment across Linux and macOS systems.
+A comprehensive collection of configuration files for a productive development environment across Linux and macOS systems. - Configurationsit
 
 ## 🚀 Quick Start
 
