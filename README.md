@@ -1,6 +1,6 @@
 # Template
 
-A comprehensive collection of configuration files for a productive development environment across Linux and macOS systems. - Configurationsit
+A comprehensive collection of configuration files for a productive development environment across Linux and macOS systems. - Asit
 
 ## 🚀 Quick Start
 
