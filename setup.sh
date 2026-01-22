@@ -81,7 +81,7 @@ fi
 # Clone AstroVim starter
 
 if [ -d $HOME/dotfiles/nvim ]; then
-	rm -rf $HOME/dotfiles/nvim 
+	rm -rf $HOME/dotfiles/nvim
 fi
 
 git clone --depth 1 https://github.com/AstroNvim/template "$HOME/dotfiles/nvim/.config/nvim" || {
@@ -107,19 +107,25 @@ cd "$DOTFILES_DIR" || {
 echo "Restoring dotfiles ..."
 tldr --update
 
-trash ~/.config/git
-stow -R "git"
-trash ~/.config/nvim
-stow -R "nvim"
-trash ~/.config/starship
-stow -R "starship"
-trash ~/.config/tmux
-stow -R "tmux"
-trash ~/.bashrc
-stow -R "bashrc"
+# Check if trash command exists before running stow operations
+if command -v trash &>/dev/null; then
+	echo -e "\033[32m✓\033[0m Restoring dotfiles with trash ..."
+	trash ~/.config/git
+	stow -R "git"
+	trash ~/.config/nvim
+	stow -R "nvim"
+	trash ~/.config/starship
+	stow -R "starship"
+	trash ~/.config/tmux
+	stow -R "tmux"
+	trash ~/.bashrc
+	stow -R "bashrc"
 
-# Run headless install
-nvim --headless +q
+	# Run headless install
+	nvim --headless +q
+else
+	echo -e "\033[33m⚠\033[0m trash command not found. Skipping stow operations"
+fi
 
 # Activate
 source "$HOME/dotfiles/bashrc/.bashrc"
