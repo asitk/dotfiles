@@ -1,0 +1,93 @@
+# Editor Files
+*.swp
+*.swo
+*.swn
+*.swm
+*.swl
+*.swk
+*.bak
+*.backup
+*.orig
+*.ref
+*~
+
+# Logs and Databases
+*.log
+log.txt
+*.sqlite
+
+# Generated files
+build/
+dist/
+
+# Dependencies
+node_modules/
+vendor/
+
+# Sensitive files
+*.key
+*.pem
+*.credentials
+*.password
+*.secret
+
+# Scratch files
+.scratch/
+
+# PhpStorm HTTP Requests
+.http/
+
+# Compiled source 
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+*.pyc
+*.pyo
+
+# Packages 
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+*.msi
+
+# OS generated files #
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+.stackdump
+
+# Temporary files #
+###################
+*.bak
+*.swp
+*.swo
+*~
+*#
+
+# IDE files #
+#############
+.vscode
+.idea
+.iml
+.sublime-workspace
+.netrc
+.buildpath
+.project
+.settings/
+
+# Python
+.pyc
+__pycache__

@@ -121,8 +121,48 @@ if command -v trash &>/dev/null; then
 	trash ~/.bashrc
 	stow -R "bashrc"
 
+	# Copy custom nvim configuration files
+	echo -e "\033[32m✓\033[0m Installing custom nvim configuration files ..."
+
+	# Define paths
+	ASTROCORE_TARGET="$HOME/.config/nvim/lua/plugins/astrocore.lua"
+	NEOTREE_TARGET="$HOME/.config/nvim/lua/plugins/neo-tree.lua"
+	ASTROCORE_SOURCE="$HOME/dotfiles/nvim-custom-astrocore.lua"
+	NEOTREE_SOURCE="$HOME/dotfiles/nvim-custom-neo-tree.lua"
+
+	# Backup existing files if they exist
+	if [ -f "$ASTROCORE_TARGET" ]; then
+		mv "$ASTROCORE_TARGET" "$ASTROCORE_TARGET.bak" || {
+			echo -e "\033[31m✗\033[0m Failed to backup existing astrocore.lua"
+			exit 1
+		}
+		echo -e "\033[33m⚠\033[0m Backed up existing astrocore.lua to astrocore.lua.bak"
+	fi
+
+	if [ -f "$NEOTREE_TARGET" ]; then
+		mv "$NEOTREE_TARGET" "$NEOTREE_TARGET.bak" || {
+			echo -e "\033[31m✗\033[0m Failed to backup existing neo-tree.lua"
+			exit 1
+		}
+		echo -e "\033[33m⚠\033[0m Backed up existing neo-tree.lua to neo-tree.lua.bak"
+	fi
+
+	# Copy custom configuration files
+	cp "$ASTROCORE_SOURCE" "$ASTROCORE_TARGET" || {
+		echo -e "\033[31m✗\033[0m Failed to copy custom astrocore.lua"
+		exit 1
+	}
+
+	cp "$NEOTREE_SOURCE" "$NEOTREE_TARGET" || {
+		echo -e "\033[31m✗\033[0m Failed to copy custom neo-tree.lua"
+		exit 1
+	}
+
+	echo -e "\033[32m✓\033[0m Custom nvim configuration files installed successfully"
+
 	# Run headless install
 	nvim --headless +q
+
 else
 	echo -e "\033[33m⚠\033[0m trash command not found. Skipping stow operations"
 fi
