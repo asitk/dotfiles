@@ -161,7 +161,13 @@ if command -v trash &>/dev/null; then
 	echo -e "\033[32m✓\033[0m Custom nvim configuration files installed successfully"
 
 	# Run headless install
-	nvim --headless +q
+	
+	# 1. Install/Sync Plugins
+	nvim --headless "+Lazy! sync" +qa
+	# 2. Sync Tree-sitter parsers (Synchronously)
+	nvim --headless +TSUpdateSync +qa
+	# 3. Update/Install Mason Packages and AstroNvim core
+	nvim --headless "+AstroUpdate" +qa
 
 else
 	echo -e "\033[33m⚠\033[0m trash command not found. Skipping stow operations"

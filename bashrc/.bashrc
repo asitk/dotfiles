@@ -279,6 +279,11 @@ fi
 # SPECIAL FUNCTIONS
 #######################################################
 
+# Runs any command in the background with nohup
+r() {
+    nohup "$@" > /dev/null 2>&1 &
+}
+
 # Extracts any archive(s) (if unp isn't installed)
 extract() {
 	for archive in "$@"; do
