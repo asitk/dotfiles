@@ -101,7 +101,7 @@ brew update && brew upgrade
 
 ### Updating Neovim Plugins
 ```bash
-nvim  # AstroVim handles plugin updates automatically
+nvim --headless +q  # AstroVim handles plugin updates automatically
 ```
 
 ### Re-stowing Configurations
