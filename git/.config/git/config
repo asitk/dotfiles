@@ -1,17 +1,51 @@
 [core]
-    	pager = delta
+	pager = delta
+	excludesfile = /home/asitk/.config/git/ignore
 
 [include]
 	path = ~/.config/git/themes.gitconfig
 
 [interactive]
-    	diffFilter = delta --color-only
+	diffFilter = delta --color-only
 
+[alias]
+  # Format: commitHash YYYY-MM-DD Commit Message [Author]
+  l = log --pretty=format:"%C(yellow)%h\\ %ad%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --date=short
+  
+  # Format: * commitHash  Commit Message. x hours/days/weeks ago by author
+  lg = log --graph --pretty=format:'%Cred%h%Creset %C(yellow)%d%Creset %s %Cgreen%ar%Creset by %C(yellow)%an%Creset' --abbrev-commit
+  
+  # Oneline Log format
+  ll = log --oneline
+  
+  # Detailed Log Format (Last 10 commits)
+  lf = log --name-status -10
+
+  co = checkout
+  cob = checkout -b
+
+  b = branch
+  b = "!git for-each-ref --sort='-authordate' --format='%(authordate)%09%(objectname:short)%09%(refname)' refs/heads | sed -e 's-refs/heads/--'"
+
+  c = commit --verbose
+  ca = commit -a --verbose
+  cm = commit -m
+  cam = commit -a -m
+
+  s = status
+  st = status -s
+
+  # List Aliases
+  la = "!git config -l | grep alias | cut -c 7-"
+  
 [delta]
-	features = mantis-shrimp-lite
+	features = calochortus-lyallii
 	navigate = true    # Use 'n' and 'N' to jump between files
-    	line-numbers = true
-    	side-by-side = true
+	line-numbers = true
+	side-by-side = true
 [merge]
-    	conflictStyle = zdiff3
+	conflictStyle = zdiff3
 
+[user]
+	email = asit@nuvidata.com
+	name = asitk
