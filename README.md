@@ -37,7 +37,7 @@ dotfiles/
 ├── setup.sh              # Main installation script
 ├── bootstrap.sh          # OS detection and dependency setup
 ├── bashrc/.bashrc        # Bash configuration
-├── git/.config/git/      # Git settings and themes
+├── git/.config/git/      # Git settings and themes (edit your email and user)
 ├── nvim/.config/nvim/    # Neovim/AstroVim configuration
 ├── starship/.config/     # Starship prompt settings
 ├── tmux/.config/tmux/    # Tmux configuration and plugins
