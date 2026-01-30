@@ -1,14 +1,16 @@
 [core]
-	pager = delta
-	excludesfile = /home/asitk/.config/git/ignore
+  pager = delta
+  excludesfile = /home/asitk/.config/git/ignore
 
 [include]
-	path = ~/.config/git/themes.gitconfig
+  path = ~/.config/git/themes.gitconfig
 
 [interactive]
-	diffFilter = delta --color-only
+  diffFilter = delta --color-only
 
 [alias]
+  a = add
+
   # Format: commitHash YYYY-MM-DD Commit Message [Author]
   l = log --pretty=format:"%C(yellow)%h\\ %ad%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --date=short
   
@@ -25,27 +27,42 @@
   cob = checkout -b
 
   b = branch
+
+  # List all local branches sorted by their most recent author date
   bl = "!git for-each-ref --sort='-authordate' --format='%(authordate)%09%(objectname:short)%09%(refname)' refs/heads | sed -e 's-refs/heads/--'"
 
+  d = diff
+  ds = diff --stat
+  dc = diff --cached
+  
   c = commit --verbose
   ca = commit -a --verbose
   cm = commit -m
   cam = commit -a -m
+  m = commit --amend --verbose
 
   s = status
   st = status -s
 
   # List Aliases
   la = "!git config -l | grep alias | cut -c 7-"
-  
+
+[diff]
+  # The mnemonicprefix = true setting replaces the standard,
+  # generic a/ and b/ file prefixes in git diff output with
+  # more descriptive letters that indicate what is actually
+  # being compared
+  mnemonicprefix = true
+
 [delta]
-	features = calochortus-lyallii
-	navigate = true    # Use 'n' and 'N' to jump between files
-	line-numbers = true
-	side-by-side = true
+  features = calochortus-lyallii
+  navigate = true    # Use 'n' and 'N' to jump between files
+  line-numbers = true
+  side-by-side = true
+
 [merge]
-	conflictStyle = zdiff3
+  conflictStyle = zdiff3
 
 [user]
-	email = asit@nuvidata.com
-	name = asitk
+  email = asit@nuvidata.com
+  name = asitk
