@@ -17,6 +17,28 @@ if ! command -v brew &>/dev/null; then
 	}
 fi
 
+# Helper function to install brew packages without warnings
+brew_install_quiet() {
+	local packages="$@"
+	local packages_to_install=""
+
+	for package in $packages; do
+		if ! brew list "$package" &>/dev/null; then
+			packages_to_install="$packages_to_install $package"
+		else
+			echo -e "\033[32m✓\033[0m $package is already installed"
+		fi
+	done
+
+	if [ -n "$packages_to_install" ]; then
+		echo -e "\033[32m✓\033[0m Installing:$packages_to_install"
+		brew install $packages_to_install || {
+			echo -e "\033[31m✗\033[0m Failed to install packages"
+			exit 1
+		}
+	fi
+}
+
 # Update Homebrew and clean up old versions
 echo -e "\033[32m✓\033[0m Updating Homebrew ..."
 brew update || {
@@ -31,23 +53,17 @@ brew cleanup || {
 
 # Install prerequisites
 echo -e "\033[32m✓\033[0m Installing prerequisites ..."
-brew install \
+brew_install_quiet \
 	stow fastfetch shellcheck git lazygit tree-sitter-cli lua luarocks \
 	git-delta eza ripgrep shfmt tealdeer multitail tree bottom zoxide \
 	trash-cli fzf fd curl bat nvim tmux tpm xclip gcc make cmake gh \
-	go php ruby composer perl julia imagemagick tectonic node starship || {
-	echo -e "\033[31m✗\033[0m Failed to install prerequisites"
-	exit 1
-}
+	go php ruby composer perl julia imagemagick tectonic node starship
 
 # Install fonts
 echo -e "\033[32m✓\033[0m Installing fonts ..."
-brew reinstall \
+brew_install_quiet \
 	font-meslo-lg-nerd-font font-fira-code-nerd-font \
-	font-jetbrains-mono-nerd-font || {
-	echo -e "\033[31m✗\033[0m Failed to install fonts"
-	exit 1
-}
+	font-jetbrains-mono-nerd-font
 
 # Install bash completion
 echo -e "\033[32m✓\033[0m Installing bash completion ..."
@@ -55,20 +71,14 @@ version=$(bash --version | head -n1 | cut -d' ' -f4 |
 	cut -d'(' -f1)
 if [[ $(printf '%s\n' "$version" "4.2" | sort -V |
 	head -n1) == "4.2" ]]; then
-	brew reinstall bash-completion@2 || {
-		echo -e "\033[31m✗\033[0m Failed to install bash-completion@2"
-		exit 1
-	}
+	brew_install_quiet bash-completion@2
 else
-	brew reinstall bash-completion || {
-		echo -e "\033[31m✗\033[0m Failed to install bash-completion"
-		exit 1
-	}
+	brew_install_quiet bash-completion
 fi
 
 # Install LazyVim
 echo -e "\033[32m✓\033[0m Installing AstroVim Template ..."
-# Remove existing nvim config if it exists
+# Backup existing nvim config if it exists to /tmp
 if [ -d "$HOME/dotfiles/nvim" ]; then
 	if [ -d "/tmp/nvim" ]; then
 		rm -rf /tmp/nvim
@@ -79,7 +89,7 @@ if [ -d "$HOME/dotfiles/nvim" ]; then
 	}
 fi
 
-# Backup additional nvim directories (optional but recommended)
+# Remove nvim directories (optional but recommended)
 if [ -d ~/.local/share/nvim ]; then
 	rm -rf ~/.local/share/nvim
 fi
@@ -91,11 +101,6 @@ if [ -d ~/.cache/nvim ]; then
 fi
 
 # Clone AstroVim starter
-
-if [ -d $HOME/dotfiles/nvim ]; then
-	rm -rf $HOME/dotfiles/nvim
-fi
-
 git clone --depth 1 https://github.com/AstroNvim/template "$HOME/dotfiles/nvim/.config/nvim" || {
 	echo -e "\033[31m✗\033[0m Failed to clone AstroVim starter"
 	exit 1
@@ -122,15 +127,15 @@ tldr --update
 # Check if trash command exists before running stow operations
 if command -v trash &>/dev/null; then
 	echo -e "\033[32m✓\033[0m Restoring dotfiles with trash ..."
-	trash ~/.config/git
+	trash -f ~/.config/git
 	stow -R "git"
-	trash ~/.config/nvim
+	trash -f ~/.config/nvim
 	stow -R "nvim"
-	trash ~/.config/starship
+	trash -f ~/.config/starship
 	stow -R "starship"
-	trash ~/.config/tmux
+	trash -f ~/.config/tmux
 	stow -R "tmux"
-	trash ~/.bashrc
+	trash -f ~/.bashrc
 	stow -R "bashrc"
 
 	# Copy custom nvim configuration files
@@ -218,12 +223,13 @@ if command -v trash &>/dev/null; then
 
 	# Run headless install
 
+	echo "Running nvim headless install..."
 	# 1. Install/Sync Plugins
-	nvim --headless "+Lazy! sync" +qa
+	nvim --headless "+Lazy! sync" +qa &>/dev/null
 	# 2. Sync Tree-sitter parsers (Synchronously)
-	nvim --headless +TSUpdateSync +qa
+	nvim --headless +TSUpdateSync +qa &>/dev/null
 	# 3. Update/Install Mason Packages and AstroNvim core
-	nvim --headless "+AstroUpdate" +qa
+	nvim --headless "+AstroUpdate" +qa &>/dev/null
 
 else
 	echo -e "\033[33m⚠\033[0m trash command not found. Skipping stow operations"
