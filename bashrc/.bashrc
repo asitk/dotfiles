@@ -281,7 +281,7 @@ fi
 
 # Runs any command in the background with nohup
 r() {
-    nohup "$@" > /dev/null 2>&1 &
+	nohup "$@" >/dev/null 2>&1 &
 }
 
 # Extracts any archive(s) (if unp isn't installed)
@@ -525,12 +525,22 @@ if command -v starship >/dev/null 2>&1; then
 	eval "$(fzf --bash)"
 fi
 
-# fzf opts
-export FZF_CTRL_R_OPTS="
-  --preview 'echo {}' --preview-window down:3:hidden:wrap
-  --bind 'ctrl-/:toggle-preview'
-  --bind 'ctrl-y:execute-silent(echo -n {2..} | pbcopy)+abort'
-  --color 'header:italic:underline'
-  --header 'Press CTRL-Y to copy command, CTRL-/ to toggle preview'"
+if command -v fzf >/dev/null 2>&1; then
+	# Detect Operating System and set clipboard tool
+	case "$(uname)" in
+	Darwin*) CLIP_CMD="pbcopy" ;;                    # macOS
+	Linux*) CLIP_CMD="xclip -selection clipboard" ;; # Linux
+	*) CLIP_CMD="cat" ;;                             # Fallback (printsc)
+	esac
+
+	# fzf opts
+	export FZF_CTRL_R_OPTS='
+			--preview "echo {}" --preview-window down:3:hidden:wrap
+      --bind "ctrl-/:toggle-preview"
+      --bind "ctrl-y:execute-silent(echo -n {2..} | '"$CLIP_CMD"')+abort"
+      --color "header:italic:underline"
+      --header "Press CTRL-Y to copy command, CTRL-/ to toggle preview"'
+fi
 
 alias zi='cdi'
+export PATH="/home/linuxbrew/.linuxbrew/opt/openjdk@17/bin:$PATH"

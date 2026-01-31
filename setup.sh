@@ -17,12 +17,24 @@ if ! command -v brew &>/dev/null; then
 	}
 fi
 
+# Update Homebrew and clean up old versions
+echo -e "\033[32m✓\033[0m Updating Homebrew ..."
+brew update || {
+	echo -e "\033[31m✗\033[0m Failed to update Homebrew"
+	exit 1
+}
+
+echo -e "\033[32m✓\033[0m Cleaning up old Homebrew versions ..."
+brew cleanup || {
+	echo -e "\033[33m⚠\033[0m Failed to cleanup Homebrew (continuing)"
+}
+
 # Install prerequisites
 echo -e "\033[32m✓\033[0m Installing prerequisites ..."
-brew reinstall \
+brew install \
 	stow fastfetch shellcheck git lazygit tree-sitter-cli lua luarocks \
 	git-delta eza ripgrep shfmt tealdeer multitail tree bottom zoxide \
-	trash-cli fzf fd curl bat nvim tmux tpm xclip gcc make cmake gh openjdk \
+	trash-cli fzf fd curl bat nvim tmux tpm xclip gcc make cmake gh \
 	go php ruby composer perl julia imagemagick tectonic node starship || {
 	echo -e "\033[31m✗\033[0m Failed to install prerequisites"
 	exit 1
@@ -127,41 +139,85 @@ if command -v trash &>/dev/null; then
 	# Define paths
 	ASTROCORE_TARGET="$HOME/.config/nvim/lua/plugins/astrocore.lua"
 	NEOTREE_TARGET="$HOME/.config/nvim/lua/plugins/neo-tree.lua"
+	ASTROCOMMUNITY_TARGET="$HOME/.config/nvim/lua/community.lua"
 	ASTROCORE_SOURCE="$HOME/dotfiles/nvim-custom-astrocore.lua"
 	NEOTREE_SOURCE="$HOME/dotfiles/nvim-custom-neo-tree.lua"
+	ASTROCOMMUNITY_SOURCE="$HOME/dotfiles/nvim-custom-community.lua"
 
-	# Backup existing files if they exist
-	if [ -f "$ASTROCORE_TARGET" ]; then
-		mv "$ASTROCORE_TARGET" "$ASTROCORE_TARGET.bak" || {
-			echo -e "\033[31m✗\033[0m Failed to backup existing astrocore.lua"
-			exit 1
-		}
-		echo -e "\033[33m⚠\033[0m Backed up existing astrocore.lua to astrocore.lua.bak"
+	# Validate that all source custom configuration files exist
+	echo "Validating custom configuration source files..."
+	missing_files=""
+
+	if [ ! -f "$ASTROCORE_SOURCE" ]; then
+		missing_files="$missing_files astrocore.lua"
 	fi
 
-	if [ -f "$NEOTREE_TARGET" ]; then
-		mv "$NEOTREE_TARGET" "$NEOTREE_TARGET.bak" || {
-			echo -e "\033[31m✗\033[0m Failed to backup existing neo-tree.lua"
-			exit 1
-		}
-		echo -e "\033[33m⚠\033[0m Backed up existing neo-tree.lua to neo-tree.lua.bak"
+	if [ ! -f "$NEOTREE_SOURCE" ]; then
+		missing_files="$missing_files neo-tree.lua"
 	fi
 
-	# Copy custom configuration files
-	cp "$ASTROCORE_SOURCE" "$ASTROCORE_TARGET" || {
-		echo -e "\033[31m✗\033[0m Failed to copy custom astrocore.lua"
-		exit 1
-	}
+	if [ ! -f "$ASTROCOMMUNITY_SOURCE" ]; then
+		missing_files="$missing_files community.lua"
+	fi
 
-	cp "$NEOTREE_SOURCE" "$NEOTREE_TARGET" || {
-		echo -e "\033[31m✗\033[0m Failed to copy custom neo-tree.lua"
-		exit 1
-	}
+	if [ -n "$missing_files" ]; then
+		echo -e "\033[33m⚠\033[0m Missing custom configuration files:$missing_files"
+		echo -e "\033[33m⚠\033[0m Skipping custom configuration installation"
+		skip_custom_config=true
+	else
+		echo -e "\033[32m✓\033[0m All custom configuration files found"
+		skip_custom_config=false
+	fi
 
-	echo -e "\033[32m✓\033[0m Custom nvim configuration files installed successfully"
+	# Only proceed with backup and copy if all files exist
+	if [ "$skip_custom_config" = false ]; then
+
+		# Backup existing files if they exist
+		if [ -f "$ASTROCORE_TARGET" ]; then
+			mv "$ASTROCORE_TARGET" "$ASTROCORE_TARGET.bak" || {
+				echo -e "\033[31m✗\033[0m Failed to backup existing astrocore.lua"
+				exit 1
+			}
+			echo -e "\033[33m⚠\033[0m Backed up existing astrocore.lua to astrocore.lua.bak"
+		fi
+
+		if [ -f "$NEOTREE_TARGET" ]; then
+			mv "$NEOTREE_TARGET" "$NEOTREE_TARGET.bak" || {
+				echo -e "\033[31m✗\033[0m Failed to backup existing neo-tree.lua"
+				exit 1
+			}
+			echo -e "\033[33m⚠\033[0m Backed up existing neo-tree.lua to neo-tree.lua.bak"
+		fi
+
+		if [ -f "$ASTROCOMMUNITY_TARGET" ]; then
+			mv "$ASTROCOMMUNITY_TARGET" "$ASTROCOMMUNITY_TARGET.bak" || {
+				echo -e "\033[31m✗\033[0m Failed to backup existing community.lua"
+				exit 1
+			}
+			echo -e "\033[33m⚠\033[0m Backed up existing community.lua to community.lua.bak"
+		fi
+
+		# Copy custom configuration files
+		cp "$ASTROCORE_SOURCE" "$ASTROCORE_TARGET" || {
+			echo -e "\033[31m✗\033[0m Failed to copy custom astrocore.lua"
+			exit 1
+		}
+
+		cp "$NEOTREE_SOURCE" "$NEOTREE_TARGET" || {
+			echo -e "\033[31m✗\033[0m Failed to copy custom neo-tree.lua"
+			exit 1
+		}
+
+		cp "$ASTROCOMMUNITY_SOURCE" "$ASTROCOMMUNITY_TARGET" || {
+			echo -e "\033[31m✗\033[0m Failed to copy custom community.lua"
+			exit 1
+		}
+
+		echo -e "\033[32m✓\033[0m Custom nvim configuration files installed successfully"
+	fi
 
 	# Run headless install
-	
+
 	# 1. Install/Sync Plugins
 	nvim --headless "+Lazy! sync" +qa
 	# 2. Sync Tree-sitter parsers (Synchronously)
