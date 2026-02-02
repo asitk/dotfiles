@@ -543,4 +543,3 @@ if command -v fzf >/dev/null 2>&1; then
 fi
 
 alias zi='cdi'
-export PATH="/home/linuxbrew/.linuxbrew/opt/openjdk@17/bin:$PATH"

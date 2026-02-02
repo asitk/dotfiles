@@ -2,6 +2,33 @@
 
 A comprehensive collection of dotfiles for a productive development environment.
 
+## 📋 Prerequisites
+
+Before starting, ensure you have the following installed:
+
+- **Git** - Version control system
+- **Homebrew** - Cross-platform package manager
+
+### Installing Prerequisites
+
+**Git:**
+```bash
+# On Linux (Ubuntu/Debian)
+sudo apt update && sudo apt install git
+
+# On Linux (Fedora/CentOS)
+sudo dnf install git
+
+# On macOS
+brew install git
+```
+
+**Homebrew:**
+```bash
+# Install Homebrew (works on Linux and macOS)
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
 ## 🚀 Quick Start
 
 ```bash
@@ -35,7 +62,6 @@ cd ~/dotfiles
 ```
 dotfiles/
 ├── setup.sh              # Main installation script
-├── bootstrap.sh          # OS detection and dependency setup
 ├── bashrc/.bashrc        # Bash configuration
 ├── git/.config/git/      # Git settings and themes (edit your email and user)
 ├── nvim/.config/nvim/    # Neovim/AstroVim configuration
@@ -49,6 +75,7 @@ dotfiles/
 ### Prerequisites
 - Linux (Ubuntu, Fedora, Arch, openSUSE, RHEL) or macOS
 - Internet connection for package installation
+- Git and Homebrew (see prerequisites section above)
 
 ### Automated Setup
 The `setup.sh` script handles everything:
@@ -58,7 +85,7 @@ The `setup.sh` script handles everything:
 3. **Package Installation** - Installs 50+ essential tools:
    - Development: `git`, `gcc`, `make`, `cmake`, `go`, `node`, `python`, `ruby`
    - Terminal: `nvim`, `tmux`, `starship`, `eza`, `ripgrep`, `fd`, `fzf`
-   - Utilities: `lazygit`, `delta`, `bat`, `tree`, `bottom`, `zoxide`
+   - Utilities: `lazygit`, `delta`, `bat`, `tree`, `btop`, `zoxide`
    - Fonts: Nerd Font collection for better UI
 4. **Configuration Stowing** - Uses GNU Stow to symlink dotfiles
 5. **Neovim Setup** - Runs headless installation for plugin setup
@@ -67,10 +94,7 @@ The `setup.sh` script handles everything:
 If you prefer manual installation:
 
 ```bash
-# Install dependencies first
-./bootstrap.sh
-
-# Then run main setup
+# Run the setup script directly
 ./setup.sh
 ```
 
@@ -89,8 +113,10 @@ If you prefer manual installation:
 ### Productivity Tools
 - **File Navigation** - `eza`, `ripgrep`, `fd`, `fzf` for efficient file operations
 - **Git Workflow** - `lazygit` for intuitive Git management
-- **System Monitoring** - `bottom` for resource monitoring
+- **System Monitoring** - `btop` for resource monitoring
 - **Smart CD** - `zoxide` for directory jumping
+- **Enhanced Viewing** - `bat` for syntax-highlighted file content (upgraded cat)
+- **Quick Documentation** - `tldr` (tealdeer) for simplified man pages with examples
 
 ## 🔄 Maintenance
 
@@ -153,7 +179,7 @@ Add custom aliases and functions to `bashrc/.bashrc`
 
 ### System Utilities
 - **tree** - Directory visualization
-- **bottom** - System monitor
+- **btop** - System monitor
 - **zoxide** - Smart directory navigation
 - **trash-cli** - Safe file removal
 - **multitail** - Log monitoring
