@@ -220,7 +220,7 @@ The setup script automatically backs up your existing configurations before inst
 | Backup Location | What is Backed Up |
 |----------------|-------------------|
 | `/tmp/nvim` | Existing Neovim configuration from ~/dotfiles/nvim |
-| `$HOME/.local/share/Trash/ or ~/.Trash (macOS)` | Existing configs via trash-cli |
+| `~/.local/share/Trash/ or ~/.Trash (macOS)` | Existing configs via trash-cli |
 | `~/.config/nvim/lua/plugins/astrocore.lua.bak` | Existing AstroCore config |
 | `~/.config/nvim/lua/plugins/neo-tree.lua.bak` | Existing Neo-tree config |
 | `~/.config/nvim/lua/plugins/community.lua.bak` | Existing AstroCommunity config |
@@ -253,7 +253,7 @@ mv ~/.config/nvim/lua/plugins/community.lua.bak ~/.config/nvim/lua/plugins/commu
 
 If something goes wrong during setup:
 1. Check `/tmp/nvim` for the original nvim configuration
-2. Check `$HOME/.local/share/Trash/` for any moved dotfiles
+2. Check `~/.local/share/Trash/ or ~/.Trash (macOS)` for any moved dotfiles
 3. Check `~/.config/nvim/lua/plugins/` for `.bak` backup files (astrocore.lua.bak, neo-tree.lua.bak, community.lua.bak)
 
 ## 📄 License
