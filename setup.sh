@@ -137,7 +137,7 @@ if command -v trash &>/dev/null; then
 	stow -R "git"
 	trash ~/.config/nvim
 	stow -R "nvim"
-	trash ~/.config/starship
+	trash ~/.config/starship.toml
 	stow -R "starship"
 	trash ~/.config/tmux
 	stow -R "tmux"
@@ -243,7 +243,7 @@ else
 fi
 
 # Activate
-source "~/.bashrc"
+source "$HOME/.bashrc"
 
 echo ""
 echo -e "\033[32m✓\033[0m Setup complete! :)"
