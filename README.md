@@ -116,7 +116,7 @@ If you prefer manual installation:
     - **Web Development**: HTML/CSS, JSON, YAML, XML, and SQL support
     - **DevOps Tools**: Docker and Markdown pack integrations
     - **File Explorer**: Customized Neo-tree with real-time updates and visible hidden files
-    - **Backup System**: Automated timestamped backups with rotation
+    - **Backup System**: Automated timestamped backups with rotation (~/.local/state/nvim/backup/)
     - **Tab Management**: Extended tab navigation and manipulation keybindings
 - **Git Integration** - Enhanced diffs, commit signing, and useful aliases
 - **Terminal Multiplexing** - Tmux with vim-tmux-navigator and custom plugins
