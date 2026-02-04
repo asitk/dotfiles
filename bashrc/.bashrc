@@ -131,11 +131,6 @@ export LESS_TERMCAP_us=$'\E[01;32m'
 # ALIASES
 #######################################################
 
-# Add an "alert" alias for long running commands.  Use like so:
-#   sleep 10; alert
-alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" \
-"$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
-
 # Edit this .bashrc file
 alias ebsh='vi ~/.bashrc'
 alias sbsh='source ~/.bashrc'
@@ -159,13 +154,13 @@ alias ps='ps auxf'
 alias ping='ping -c 10'
 alias less='less -R'
 alias cls='clear'
-alias apt-get='sudo apt-get'
+# alias apt-get='sudo apt-get'  # Uncomment on Debian/Ubuntu
 alias multitail='multitail --no-repeat -c'
-alias freshclam='sudo freshclam'
+# alias freshclam='sudo freshclam'  # Uncomment to enable ClamAV updates (Linux only)
 alias svi='sudo vi'
 alias vis='nvim "+set si"'
-alias yayf="yay -Slq | fzf --multi --preview 'yay -Sii {1}' --preview-window=down:75% | \
-xargs -ro yay -S"
+# alias yayf="yay -Slq | fzf --multi --preview 'yay -Sii {1}' --preview-window=down:75% | \
+# xargs -ro yay -S"  # AUR helper - uncomment on Arch Linux with yay installed
 
 if command -v bat >/dev/null 2>&1; then
 	alias cat='bat'
@@ -230,7 +225,11 @@ done 2> /dev/null"
 alias checkcommand="type -t"
 
 # Show open ports
-alias openports='netstat -nape --inet'
+if [[ "$(uname)" == "Darwin" ]]; then
+  alias openports='netstat -anp tcp | grep LISTEN'
+else
+  alias openports='netstat -nape --inet'
+fi
 
 # Alias's for safe and forced reboots
 alias rebootsafe='sudo shutdown -r now'
@@ -254,15 +253,17 @@ alias unbz2='tar -xvjf'
 alias ungz='tar -xvzf'
 
 # Show all logs in /var/log
-alias logs="sudo find /var/log -type f -exec file {} \; | grep 'text' | cut -d' ' -f1 | \
+if [[ "$(uname)" == "Darwin" ]]; then
+  alias logs='echo "macOS logs: Use Console app or check /var/log/"'
+else
+  alias logs="sudo find /var/log -type f -exec file {} \; | grep 'text' | cut -d' ' -f1 | \
 sed -e's/:$//g' | grep -v '[0-9]$' | xargs tail -f"
+fi
 
 # SHA1
 alias sha1='openssl sha1'
 
-if command -v xclip >/dev/null 2>&1; then
-	alias clickpaste='sleep 3; xdotool type "$(xclip -o -selection clipboard)"'
-fi
+# clickpaste removed - see tmux copy-mode for clipboard support
 
 # alias to cleanup unused docker containers, images, networks, and \
 # volumes
@@ -375,85 +376,28 @@ pwdtail() {
 }
 
 # IP address lookup
-alias whatismyip="whatsmyip"
 function whatsmyip() {
-	# Internal IP Lookup.
-	if command -v ip &>/dev/null; then
-		echo -n "Internal IP: "
-		ip addr show wlan0 | grep "inet " | awk '{print $2}' |
-			cut -d/ -f1
+	# Internal IP Lookup
+	if [[ "$(uname)" == "Darwin" ]]; then
+		# macOS: Use en0 (primary) or en1 (WiFi)
+		internal_ip=$(ipconfig getifaddr en0 2>/dev/null || ipconfig getifaddr en1 2>/dev/null)
+		echo -n "Internal IP: $internal_ip"
 	else
-		echo -n "Internal IP: "
-		ifconfig wlan0 | grep "inet " | awk '{print $2}'
+		# Linux: Dynamic interface detection
+		if command -v ip &>/dev/null; then
+			interface=$(ip route | awk '/default/ { print $5; exit }')
+			echo -n "Internal IP: "
+			ip addr show "$interface" 2>/dev/null | grep "inet " | awk '{print $2}' | cut -d/ -f1
+		else
+			echo -n "Internal IP: "
+			ifconfig | grep "inet " | awk '{print $2}' | head -1
+		fi
 	fi
 
 	# External IP Lookup
+	echo ""
 	echo -n "External IP: "
-	curl -4 ifconfig.me
-}
-
-# View Apache logs
-apachelog() {
-	if [ -f /etc/httpd/conf/httpd.conf ]; then
-		cd /var/log/httpd && ls -xAh &&
-			multitail --no-repeat -c -s 2 /var/log/httpd/*_log
-	else
-		cd /var/log/apache2 && ls -xAh &&
-			multitail --no-repeat -c -s 2 /var/log/apache2/*.log
-	fi
-}
-
-# Edit the Apache configuration
-apacheconfig() {
-	if [ -f /etc/httpd/conf/httpd.conf ]; then
-		vi /etc/httpd/conf/httpd.conf
-	elif [ -f /etc/apache2/apache2.conf ]; then
-		vi /etc/apache2/apache2.conf
-	else
-		echo "Error: Apache config file could not be found."
-		echo "Searching for possible locations:"
-		sudo updatedb && locate httpd.conf && locate apache2.conf
-	fi
-}
-
-# Edit the PHP configuration file
-phpconfig() {
-	if [ -f /etc/php.ini ]; then
-		vi /etc/php.ini
-	elif [ -f /etc/php/php.ini ]; then
-		vi /etc/php/php.ini
-	elif [ -f /etc/php5/php.ini ]; then
-		vi /etc/php5/php.ini
-	elif [ -f /usr/bin/php5/bin/php.ini ]; then
-		vi /usr/bin/php5/bin/php.ini
-	elif [ -f /etc/php5/apache2/php.ini ]; then
-		vi /etc/php5/apache2/php.ini
-	else
-		echo "Error: php.ini file could not be found."
-		echo "Searching for possible locations:"
-		sudo updatedb && locate php.ini
-	fi
-}
-
-# Edit the MySQL configuration file
-mysqlconfig() {
-	if [ -f /etc/my.cnf ]; then
-		vi /etc/my.cnf
-	elif [ -f /etc/mysql/my.cnf ]; then
-		vi /etc/mysql/my.cnf
-	elif [ -f /usr/local/etc/my.cnf ]; then
-		vi /usr/local/etc/my.cnf
-	elif [ -f /usr/bin/mysql/my.cnf ]; then
-		vi /usr/bin/mysql/my.cnf
-	elif [ -f ~/my.cnf ]; then
-		vi ~/my.cnf
-	elif [ -f ~/.my.cnf ]; then
-		vi ~/.my.cnf
-	else
-		echo "Error: my.cnf file could not be found."
-		echo "Searching for possible locations:"
-		sudo updatedb && locate my.cnf
-	fi
+	curl -4 ifconfig.me 2>/dev/null || curl -4 ipinfo.io/ip 2>/dev/null
 }
 
 # GitHub Additions

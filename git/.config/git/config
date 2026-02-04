@@ -63,6 +63,7 @@
 [merge]
   conflictStyle = zdiff3
 
+# IMPORTANT: Update these values to your own before committing
 [user]
   email = asit@nuvidata.com
   name = asitk

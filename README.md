@@ -43,8 +43,8 @@ cd ~/dotfiles
 ## 📋 What's Included
 
 ### 🛠️ Development Tools
-- **Neovim** - AstroVim configuration with Lua plugins
-- **Git** - Enhanced with Delta for beautiful diffs
+- **Neovim** - AstroVim with AI-powered coding assistance (OpenCode plugin)
+- **Git** - Enhanced with Delta for beautiful diffs and smart aliases
 - **Tmux** - Terminal multiplexer with custom keybindings
 - **Starship** - Minimal, fast, and customizable prompt
 
@@ -60,14 +60,15 @@ cd ~/dotfiles
 ## 🏗️ Project Structure
 
 ```
-dotfiles/
-├── setup.sh              # Main installation script
-├── bashrc/.bashrc        # Bash configuration
-├── git/.config/git/      # Git settings and themes (edit your email and user)
-├── nvim/.config/nvim/    # Neovim/AstroVim configuration
-├── starship/.config/     # Starship prompt settings
-├── tmux/.config/tmux/    # Tmux configuration and plugins
-└── README.md             # This file
+devbox/
+├── setup.sh                   # Main installation script
+├── bashrc/.bashrc             # Bash configuration
+├── git/.config/git/           # Git settings and themes
+├── nvim/.config/nvim/         # Neovim/AstroVim with AI integration
+├── starship/.config/          # Starship prompt settings
+├── tmux/.config/tmux/         # Tmux configuration and plugins
+├── nvim-custom-*.lua          # Custom Neovim patches (AI, diagnostics, UI)
+└── README.md                 # This file
 ```
 
 ## ⚙️ Installation
