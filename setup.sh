@@ -130,18 +130,18 @@ echo "Restoring dotfiles ..."
 tldr --update
 
 # NOTE: Existing bashrc, git, nvim, tmux, and starship configs are moved to
-#       $HOME/.local/share/Trash/ before stowing
+#       $HOME/.local/share/Trash/ or ~/.Trash (macOS) before stowing
 if command -v trash &>/dev/null; then
-	echo -e "\033[32m✓\033[0m Restoring dotfiles with trash ..."
-	trash -f ~/.config/git
+	echo -e "\033[32m✓\033[0m Moving older configs and setting up dotfiles ..."
+	trash ~/.config/git
 	stow -R "git"
-	trash -f ~/.config/nvim
+	trash ~/.config/nvim
 	stow -R "nvim"
-	trash -f ~/.config/starship
+	trash ~/.config/starship
 	stow -R "starship"
-	trash -f ~/.config/tmux
+	trash ~/.config/tmux
 	stow -R "tmux"
-	trash -f ~/.bashrc
+	trash ~/.bashrc
 	stow -R "bashrc"
 
 	# Copy custom nvim configuration files
@@ -243,7 +243,7 @@ else
 fi
 
 # Activate
-source "$HOME/.bashrc"
+source "~/.bashrc"
 
 echo ""
 echo -e "\033[32m✓\033[0m Setup complete! :)"
