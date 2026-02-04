@@ -151,9 +151,9 @@ if command -v trash &>/dev/null; then
 	ASTROCORE_TARGET="$HOME/.config/nvim/lua/plugins/astrocore.lua"
 	NEOTREE_TARGET="$HOME/.config/nvim/lua/plugins/neo-tree.lua"
 	ASTROCOMMUNITY_TARGET="$HOME/.config/nvim/lua/community.lua"
-	ASTROCORE_SOURCE="$HOME/dotfiles/nvim-custom-astrocore.lua"
-	NEOTREE_SOURCE="$HOME/dotfiles/nvim-custom-neo-tree.lua"
-	ASTROCOMMUNITY_SOURCE="$HOME/dotfiles/nvim-custom-community.lua"
+	ASTROCORE_SOURCE="$HOME/dotfiles/patches/nvim-custom-astrocore.lua"
+	NEOTREE_SOURCE="$HOME/dotfiles/patches/nvim-custom-neo-tree.lua"
+	ASTROCOMMUNITY_SOURCE="$HOME/dotfiles/patches/nvim-custom-community.lua"
 
 	# Validate that all source custom configuration files exist
 	echo "Validating custom configuration source files..."

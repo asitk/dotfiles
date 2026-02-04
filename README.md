@@ -1,6 +1,6 @@
 # DevBox: Portable Dev Environment
 
-A collection of curated tools and configs that play together.
+A comprehensive set of curated tools and configs that play together :)
 
 ![DevBox Screenshot](docs/screenshot.png)
 
@@ -64,16 +64,14 @@ cd ~/dotfiles
 ```
 dotfiles/
 ├── setup.sh                   # Main installation script
-├── bashrc/.bashrc             # Bash configuration
-├── git/.config/git/           # Git settings and themes
-├── LICENSE                    # MIT License
-├── nvim/.config/nvim/         # Neovim/AstroVim with AI integration
-├── nvim-custom-astrocore.lua  # Custom AstroCore patches
-├── nvim-custom-community.lua  # Custom community plugin patches
-├── nvim-custom-neo-tree.lua   # Custom Neo-tree patches
-├── starship/.config/          # Starship prompt settings
-├── tmux/.config/tmux/         # Tmux configuration and plugins
-├── docs/                      # Documentation and screenshots
+├── patches/                   # Custom nvim patches
+├── bashrc/.bashrc
+├── git/.config/git/
+├── LICENSE
+├── nvim/.config/nvim/
+├── starship/.config/
+├── tmux/.config/tmux/
+├── docs/
 └── README.md                  # This file
 ```
 
