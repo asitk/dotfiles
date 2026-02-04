@@ -1,4 +1,4 @@
-# Cross Platform Dev Setup
+# DevBox: Portable Development Environment
 
 A comprehensive collection of dotfiles for a productive development environment.
 
@@ -106,6 +106,17 @@ If you prefer manual installation:
 
 ### Development Environment
 - **AstroVim** - Pre-configured Neovim with LSP, treesitter, and plugins
+  - Custom patches include:
+    - **AI Integration**: OpenCode NVim plugin for AI-powered coding assistance
+    - **Terminal Integration**: Vim-tmux-navigator for seamless navigation
+    - **Enhanced Diagnostics**: Trouble.nvim for better error management
+    - **Language Support**: Pre-configured packs for Python, Rust, Lua, Zig, Java, TypeScript, C++, and more
+    - **Colorschemes**: Catppuccin and Tokyonight themes
+    - **Web Development**: HTML/CSS, JSON, YAML, XML, and SQL support
+    - **DevOps Tools**: Docker and Markdown pack integrations
+    - **File Explorer**: Customized Neo-tree with real-time updates and visible hidden files
+    - **Backup System**: Automated timestamped backups with rotation
+    - **Tab Management**: Extended tab navigation and manipulation keybindings
 - **Git Integration** - Enhanced diffs, commit signing, and useful aliases
 - **Terminal Multiplexing** - Tmux with vim-tmux-navigator and custom plugins
 - **Modern Shell** - Starship prompt with Git status and environment info
