@@ -2,6 +2,8 @@
 
 A comprehensive collection of dotfiles for a productive development environment.
 
+![DevBox Screenshot](docs/screenshot.png)
+
 ## 📋 Prerequisites
 
 Before starting, ensure you have the following installed:
