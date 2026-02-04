@@ -1,6 +1,12 @@
 #!/bin/bash
 set -e
 
+# Ensure $HOME is set
+if [ -z "$HOME" ]; then
+	echo -e "\033[31m✗\033[0m \$HOME is not set. Exiting"
+	exit 1
+fi
+
 # Check if OS is Linux or macOS
 if [[ "$OSTYPE" != "linux-gnu"* && "$OSTYPE" != "darwin"* ]]; then
 	echo -e "\033[31m✗\033[0m OS is unsupported. Exiting"
@@ -19,20 +25,19 @@ fi
 
 # Helper function to install brew packages without warnings
 brew_install_quiet() {
-	local packages="$@"
-	local packages_to_install=""
+	local -a packages_to_install=()
 
-	for package in $packages; do
+	for package in "$@"; do
 		if ! brew list "$package" &>/dev/null; then
-			packages_to_install="$packages_to_install $package"
+			packages_to_install+=("$package")
 		else
 			echo -e "\033[32m✓\033[0m $package is already installed"
 		fi
 	done
 
-	if [ -n "$packages_to_install" ]; then
-		echo -e "\033[32m✓\033[0m Installing:$packages_to_install"
-		brew install $packages_to_install || {
+	if [ ${#packages_to_install[@]} -gt 0 ]; then
+		echo -e "\033[32m✓\033[0m Installing:${packages_to_install[*]}"
+		brew install "${packages_to_install[@]}" || {
 			echo -e "\033[31m✗\033[0m Failed to install packages"
 			exit 1
 		}
@@ -78,7 +83,7 @@ fi
 
 # Install LazyVim
 echo -e "\033[32m✓\033[0m Installing AstroVim Template ..."
-# Backup existing nvim config if it exists to /tmp
+# NOTE: Existing configs are backed up to /tmp before installation
 if [ -d "$HOME/dotfiles/nvim" ]; then
 	if [ -d "/tmp/nvim" ]; then
 		rm -rf /tmp/nvim
@@ -124,7 +129,8 @@ cd "$DOTFILES_DIR" || {
 echo "Restoring dotfiles ..."
 tldr --update
 
-# Check if trash command exists before running stow operations
+# NOTE: Existing bashrc, git, nvim, tmux, and starship configs are moved to
+#       $HOME/.local/share/Trash/ before stowing
 if command -v trash &>/dev/null; then
 	echo -e "\033[32m✓\033[0m Restoring dotfiles with trash ..."
 	trash -f ~/.config/git
@@ -177,7 +183,8 @@ if command -v trash &>/dev/null; then
 	# Only proceed with backup and copy if all files exist
 	if [ "$skip_custom_config" = false ]; then
 
-		# Backup existing files if they exist
+		# NOTE: Existing customizations are backed up with .bak extension
+		#       (astrocore.lua.bak, neo-tree.lua.bak, community.lua.bak)
 		if [ -f "$ASTROCORE_TARGET" ]; then
 			mv "$ASTROCORE_TARGET" "$ASTROCORE_TARGET.bak" || {
 				echo -e "\033[31m✗\033[0m Failed to backup existing astrocore.lua"
@@ -236,7 +243,7 @@ else
 fi
 
 # Activate
-source "$HOME/dotfiles/bashrc/.bashrc"
+source "$HOME/.bashrc"
 
 echo ""
 echo -e "\033[32m✓\033[0m Setup complete! :)"
