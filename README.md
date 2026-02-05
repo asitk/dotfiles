@@ -1,4 +1,4 @@
-# DevBox: Portable Dev Environment
+# Portable Dev Environment
 
 A comprehensive set of curated tools and configs that play together :)
 
