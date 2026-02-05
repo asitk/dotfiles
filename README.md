@@ -1,6 +1,6 @@
-# Portable Dev Environment
+# DevBox: Portable Dev Environment
 
-A comprehensive set of curated tools and configs that play together :)
+A personal set of curated tools and scripts that play together :)
 
 ![DevBox Screenshot](docs/screenshot.png)
 
