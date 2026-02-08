@@ -137,13 +137,12 @@ If you prefer manual installation:
 ## 🎓 Tutorials
 
 ### Neovim
-- [Quickstart](https://neovim.io/doc/user/quickstart.html)
-- [Tutorial](https://github.com/neovim/neovim/wiki/Introduction)
-- [Cheatsheet](https://vim.fandom.com/wiki/Vim_Cheat_Sheet)
+- [Quickstart](https://openvim.com/)
+- [Tutorial](https://github.com/iggredible/Learn-Vim)
+- [Cheatsheet](https://neovim.io/doc/user/quickref.html)
 
 ### Tmux
-- [Quickstart](https://github.com/tmux/tmux/wiki/Quickstart)
-- [Tutorial](https://github.com/tmux/tmux/wiki/Tutorials)
+- [Quickstart](https://hamvocke.com/blog/a-quick-and-easy-guide-to-tmux/)
 - [Cheatsheet](https://tmuxcheatsheet.com/)
 
 ## 🔄 Maintenance
