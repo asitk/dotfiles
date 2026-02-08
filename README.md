@@ -134,6 +134,18 @@ If you prefer manual installation:
 - **Enhanced Viewing** - `bat` for syntax-highlighted file content (upgraded cat)
 - **Quick Documentation** - `tldr` (tealdeer) for simplified man pages with examples
 
+## 🎓 Tutorials
+
+### Neovim
+- [Quickstart](https://neovim.io/doc/user/quickstart.html)
+- [Tutorial](https://github.com/neovim/neovim/wiki/Introduction)
+- [Cheatsheet](https://vim.fandom.com/wiki/Vim_Cheat_Sheet)
+
+### Tmux
+- [Quickstart](https://github.com/tmux/tmux/wiki/Quickstart)
+- [Tutorial](https://github.com/tmux/tmux/wiki/Tutorials)
+- [Cheatsheet](https://tmuxcheatsheet.com/)
+
 ## 🔄 Maintenance
 
 ### Updating Packages
